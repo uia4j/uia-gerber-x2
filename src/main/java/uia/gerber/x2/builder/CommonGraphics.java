@@ -154,6 +154,13 @@ public class CommonGraphics implements GerberX2Graphics {
         return gs;
     }
 
+    public TextGraphics createText() throws IOException {
+        endLast();
+        TextGraphics gs = new TextGraphics(this.out);
+        this.lastGS = gs;
+        return gs;
+    }
+
     public StepRepeatGraphics createStepRepeat(int x, int y, long i, long j) throws IOException {
         endLast();
         StepRepeatGraphics gs = new StepRepeatGraphics(x, y, i, j, this.writer, this.lastState);

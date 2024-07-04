@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import uia.gerber.x2.builder.CommonGraphics;
 import uia.gerber.x2.builder.StepRepeatGraphics;
+import uia.gerber.x2.builder.TextGraphics;
 
 public class GerberX2FileWriterTest {
 
@@ -142,6 +143,20 @@ public class GerberX2FileWriterTest {
                 .lineTo(writer.x(0.4), writer.y(0.3))
                 .lineTo(writer.x(0.3), null);
         // SR - END
+
+        writer.stop();
+    }
+
+    @Test
+    public void test5() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
+        writer.setXValuer(2, 6);
+        writer.setYValuer(2, 6);
+        writer.start();
+
+        CommonGraphics g = writer.getGraphics();
+        TextGraphics tg = g.createText();
+        tg.text("Demo Info", writer.x(0.4), writer.y(0.4), 100);
 
         writer.stop();
     }

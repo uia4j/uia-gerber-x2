@@ -9,6 +9,7 @@ The implementation of this API is based on __Gerber Layer Format Specification -
 
 * __Gerber Job File__ - under development.
 
+* __Text__ - Font `Arial` under testing.
 
 ## Build
 
@@ -23,7 +24,7 @@ The project uses the ANTLR plugin to generate java files automatically, you need
     reader.run(Paths.get("samples/gerber1.gbr"));
     ```
 
-1. Writer
+2. Writer
 
     ```java
     // create a writer.
@@ -38,7 +39,7 @@ The project uses the ANTLR plugin to generate java files automatically, you need
     // get the graphics object.
     CommonGraphics x2g = writer.getGraphics();
 
-    // create a region  at (0.1mm, 0.1mm)
+    // create a region at (0.1mm, 0.1mm)
     x2g.createRegion(writer.x(0.1), writer.y(0.1)) 
             .lineTo(writer.x(0.1), writer.y(0.5))   
             .lineTo(writer.x(0.4), null)
@@ -59,6 +60,30 @@ The project uses the ANTLR plugin to generate java files automatically, you need
     // stop writing.
     writer.stop();
     ```
+
+3. Write text
+    ```java
+    // create a writer.
+    GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
+    writer.setXValuer(2, 6);
+    writer.setYValuer(2, 6);
+
+    // start to write (streaming)
+    writer.start();
+
+    // get the graphics object.
+    CommonGraphics x2g = writer.getGraphics();
+
+    // create a text graphics
+    TextGraphics tg = g.createText();
+    tg.text("Demo Info", writer.x(0.4), writer.y(0.4), 100);
+
+    // stop writing.
+    writer.stop();
+    ```
+
+    ![Sample](sample1.png)
+
 
 ## References
 

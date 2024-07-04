@@ -21,6 +21,10 @@ public class LP implements ILoad {
         this.polarity = polarity;
     }
 
+    public LP(boolean polarity) {
+        this.polarity = polarity ? "D" : "C";
+    }
+
     @Override
     public String getCmd() {
         return "LP";
