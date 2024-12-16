@@ -67,7 +67,8 @@ g75			: 	G75;
 d01			:	g=(G01 | G02 | G03)?
 				('X' x=DECIMAL)? ('Y' y=DECIMAL)? ('I' i=DECIMAL)? ('J' j=DECIMAL)? D01		// create a linear and circular line
 			;
-d02			:	('X' x=DECIMAL)? ('Y' y=DECIMAL)? D02;										// move the current point
+d02			:   g=(G01 | G02 | G03)?
+            	('X' x=DECIMAL)? ('Y' y=DECIMAL)? D02;										// move the current point
 d03			:	('X' x=DECIMAL)? ('Y' y=DECIMAL)? D03;										// create a flash object
 dnn			:	d=DNN;																		// aperture definition
 

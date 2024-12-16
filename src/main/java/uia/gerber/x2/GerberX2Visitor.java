@@ -44,7 +44,6 @@ public interface GerberX2Visitor {
         @Override
         public void error(String stmt) {
             System.out.println("unknown statement:\n  " + stmt);
-
         }
 
     }

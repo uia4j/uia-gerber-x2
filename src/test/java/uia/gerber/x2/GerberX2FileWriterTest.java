@@ -2,6 +2,7 @@ package uia.gerber.x2;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.junit.Test;
 
@@ -159,5 +160,10 @@ public class GerberX2FileWriterTest {
         tg.text("Demo Info", writer.x(0.4), writer.y(0.4), 100);
 
         writer.stop();
+    }
+
+    @Test
+    public void test() {
+        System.out.println(UUID.randomUUID().toString());
     }
 }

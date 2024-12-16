@@ -24,7 +24,7 @@ public class TextGraphics implements GerberX2Graphics {
 
     public TextGraphics text(String text, long x, long y, int unit) throws IOException {
         for (ASCII ascii : Arial.text(text)) {
-            List<GerberX2Statement> g36s = ascii.d36(x, y, unit);
+            List<GerberX2Statement> g36s = ascii.g36(x, y, unit);
             for (GerberX2Statement g36 : g36s) {
                 g36.write(this.out);
             }

@@ -42,7 +42,7 @@ public abstract class ASCII {
         }
     }
 
-    public List<GerberX2Statement> d36(long left, long top, int unit) {
+    public List<GerberX2Statement> g36(long left, long top, int unit) {
         int w = getWidth();
         List<GerberX2Statement> result = new ArrayList<>();
         int[][] data = getData();

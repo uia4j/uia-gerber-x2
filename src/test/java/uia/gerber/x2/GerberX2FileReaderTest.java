@@ -61,4 +61,16 @@ public class GerberX2FileReaderTest {
         GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
         reader.run(Paths.get("samples/gerber5.gbr"));
     }
+
+    @Test
+    public void testSpecial1() throws IOException {
+        GerberX2FileReader reader = new GerberX2FileReader(null);
+        reader.run(Paths.get("samples/special/P24617000001-A_UBMExposure.gbr"));
+    }
+
+    @Test
+    public void testSpecial2() throws IOException {
+        GerberX2FileReader reader = new GerberX2FileReader(null);
+        reader.run(Paths.get("samples/special/Q5_LD2.gbr"));
+    }
 }

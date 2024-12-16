@@ -15,6 +15,8 @@ import uia.gerber.x2.TokenUtils;
  */
 public class D02Move implements IOp {
 
+    private String g;
+
     private Long x;
 
     private Long y;
@@ -27,9 +29,10 @@ public class D02Move implements IOp {
         this.y = y;
     }
 
-    public D02Move(Token x, Token y) {
-        this.x = TokenUtils.parseLong(x);
-        this.y = TokenUtils.parseLong(y);
+    public D02Move(Token g, Token x, Token y) {
+        this.g = g == null ? null : g.getText();
+        this.x = x == null ? null : TokenUtils.parseLong(x);
+        this.y = y == null ? null : TokenUtils.parseLong(y);
     }
 
     @Override
@@ -55,6 +58,9 @@ public class D02Move implements IOp {
 
     @Override
     public void write(OutputStream out) throws IOException {
+        if (this.g != null) {
+            out.write(this.g.getBytes());
+        }
         if (this.x != null) {
             out.write(String.format("X%s", this.x).getBytes());
         }

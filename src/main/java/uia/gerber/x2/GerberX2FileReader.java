@@ -179,7 +179,7 @@ public class GerberX2FileReader {
 
             @Override
             public void enterD02(GerberX2Parser.D02Context ctx) {
-                D02Move d02 = new D02Move(ctx.x, ctx.y);
+                D02Move d02 = new D02Move(ctx.g, ctx.x, ctx.y);
                 if (GerberX2FileReader.this.inRegion) {
                     GerberX2FileReader.this.currRegion = new G36Region(d02);
                     GerberX2FileReader.this.currRegion.setAttributes(GerberX2FileReader.this.attrs);
@@ -222,6 +222,7 @@ public class GerberX2FileReader {
 
             @Override
             public void visitErrorNode(ErrorNode node) {
+                System.out.println("err> " + node.getText());
                 acceptError(node.toString());
             }
 
