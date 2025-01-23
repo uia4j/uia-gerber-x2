@@ -283,4 +283,21 @@ public class GerberX2FileWriterTest {
 
         writer.stop();
     }
+
+    @Test
+    public void test8() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST8");
+
+        writer.start();
+
+        writer.getGraphics()
+                .defineSquare(11, BigDecimal.valueOf(1.0))
+                .dnn(11)
+                .rect(writer.xy(-10), writer.xy(-30), writer.xy(20), writer.xy(50))
+                .close();
+
+        writer.stop();
+    }
 }

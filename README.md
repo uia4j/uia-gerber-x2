@@ -1,4 +1,4 @@
-UIA Gerber File Parser
+UIA Gerber X2
 ================
 
 The implementation of this API is based on __Gerber Layer Format Specification - Revision 2024.05__.

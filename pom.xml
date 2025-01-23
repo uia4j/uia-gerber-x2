@@ -2,11 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.uia.solution</groupId>
-	<artifactId>uia-gerber</artifactId>
+	<artifactId>uia-gerber-x2</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>uia-gerber</name>
-	<url>http://maven.apache.org</url>
+	<name>uia-gerber-x2</name>
+	<url>https://github.com/uia4j/uia-gerber-x2</url>
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>

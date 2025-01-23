@@ -3,7 +3,9 @@ package uia.gerber.x2;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import uia.gerber.x2.builder.CommonGraphics;
@@ -246,6 +248,11 @@ public class GerberX2FileWriter {
         new G04Comment(this.description).write(this.out);
         new FS(this.fsValuer).write(this.out);
         new MO(this.unit).write(this.out);
+
+        ATTR attr0 = new ATTR("TF");
+        attr0.setName(".CreationDate");
+        attr0.getFields().add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date()));
+        attr0.write(this.out);
         for (ATTR attr : this.attrs) {
             attr.write(this.out);
         }
