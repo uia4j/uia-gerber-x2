@@ -15,14 +15,34 @@ import uia.gerber.x2.model.ATTR;
  */
 public interface GerberX2Statement {
 
+    /**
+     * Returns the command.
+     * @return
+     */
     public String getCmd();
 
+    /**
+     * Returns the attributes. Default is empty.
+     *
+     * @return The attributes.
+     */
     public default List<ATTR> getAttributes() {
         return Collections.emptyList();
     }
 
+    /**
+     * Sets the attributes.
+     *
+     * @param attrs The attributes.
+     */
     public default void setAttributes(List<ATTR> attrs) {
     }
 
+    /**
+     * Writes the statement to the output stream.
+     *
+     * @param out The output stream.
+     * @throws IOException Failed to write data to the output stream.
+     */
     public void write(OutputStream out) throws IOException;
 }

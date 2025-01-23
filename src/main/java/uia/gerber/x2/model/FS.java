@@ -7,25 +7,21 @@ import uia.gerber.x2.GerberX2Statement;
 import uia.gerber.x2.Valuer;
 
 /**
- * FS
+ * FS(Format Specification) specifies the number of integer and decimal places to expect in the coordinate data.
  *
  * @author Kyle K. Lin
  *
  */
 public class FS implements GerberX2Statement {
 
-    private Valuer x;
+    private final Valuer valuer;
 
-    private Valuer y;
-
-    public FS(int xIntDigi, int xDecDigi, int yIntDigi, int yDecDigi) {
-        this.x = new Valuer(xIntDigi, xDecDigi);
-        this.y = new Valuer(yIntDigi, yDecDigi);
+    public FS(int intDigi, int decDigi) {
+        this.valuer = new Valuer(intDigi, decDigi);
     }
 
-    public FS(Valuer x, Valuer y) {
-        this.x = x;
-        this.y = y;
+    public FS(Valuer valuer) {
+        this.valuer = valuer;
     }
 
     @Override
@@ -35,7 +31,7 @@ public class FS implements GerberX2Statement {
 
     @Override
     public void write(OutputStream out) throws IOException {
-        out.write(String.format("%%FSLAX%sY%s*%%\n", this.x.digi(), this.y.digi()).getBytes());
+        out.write(String.format("%%FSLAX%sY%s*%%\n", this.valuer.coordDigits(), this.valuer.coordDigits()).getBytes());
     }
 
 }

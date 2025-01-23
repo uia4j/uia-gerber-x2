@@ -12,11 +12,11 @@ import java.math.BigDecimal;
  */
 public class ADObound extends AD {
 
-    private BigDecimal width;
+    private final BigDecimal width;
 
-    private BigDecimal height;
+    private final BigDecimal height;
 
-    private BigDecimal holeDiameter;
+    private final BigDecimal holeDiameter;
 
     /**
      * The constructor.
@@ -40,24 +40,12 @@ public class ADObound extends AD {
         return this.width;
     }
 
-    public void setWidth(BigDecimal width) {
-        this.width = width;
-    }
-
     public BigDecimal getHeight() {
         return this.height;
     }
 
-    public void setHeight(BigDecimal height) {
-        this.height = height;
-    }
-
     public BigDecimal getHoleDiameter() {
         return this.holeDiameter;
-    }
-
-    public void setHoleDiameter(BigDecimal holeDiameter) {
-        this.holeDiameter = holeDiameter;
     }
 
     @Override

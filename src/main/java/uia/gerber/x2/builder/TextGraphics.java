@@ -6,7 +6,8 @@ import java.util.List;
 
 import uia.gerber.x2.GerberX2Statement;
 import uia.gerber.x2.font.ASCII;
-import uia.gerber.x2.font.Arial;
+import uia.gerber.x2.font.GFont;
+import uia.gerber.x2.font.GFontFactory;
 
 /**
  * Region(G36..G37) graphics.
@@ -18,17 +19,26 @@ public class TextGraphics implements GerberX2Graphics {
 
     private OutputStream out;
 
+    private final GFont font;
+
     public TextGraphics(OutputStream out) throws IOException {
-        this.out = out;
+        this(out, "Dialog");
     }
 
-    public TextGraphics text(String text, long x, long y, int unit) throws IOException {
-        for (ASCII ascii : Arial.text(text)) {
-            List<GerberX2Statement> g36s = ascii.g36(x, y, unit);
+    public TextGraphics(OutputStream out, String fontName) throws IOException {
+        this.out = out;
+        this.font = GFontFactory.get(fontName);
+    }
+
+    public TextGraphics text(String text, long fsX, long fsY, long fsW, long fsH) throws IOException {
+        int scale = (int) (0.8 * fsH / 162);
+        int oy = (int) (0.2 * fsH / 162);
+        for (ASCII ascii : this.font.text(text)) {
+            List<GerberX2Statement> g36s = ascii.g36(fsX, fsY + oy, scale);
             for (GerberX2Statement g36 : g36s) {
                 g36.write(this.out);
             }
-            x += (ascii.getWidth() * unit);
+            fsX += (ascii.getWidth() * scale);
         }
         return this;
     }

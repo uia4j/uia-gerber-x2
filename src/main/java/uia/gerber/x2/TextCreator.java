@@ -14,6 +14,12 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The text creator. Develop purpose.
+ *
+ * @author Kyle K. Lin
+ *
+ */
 public class TextCreator {
 
     private final static byte EMPTY = 0x20;

@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * G75
+ * G75. turns on 360° circular<br />
+ * For compatibility with older versions of the Gerber format, a G75 must be issued before the first D01 in circular mode.
  *
  * @author Kyle K. Lin
  *

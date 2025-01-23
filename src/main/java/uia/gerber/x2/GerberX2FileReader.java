@@ -89,7 +89,9 @@ public class GerberX2FileReader {
 
             @Override
             public void enterFs(GerberX2Parser.FsContext ctx) {
-                GerberX2FileReader.this.fs = new FS(new Valuer(ctx.x.getText()), new Valuer(ctx.y.getText()));
+                // Format Specification (FS)
+                // The digits for X and for Y must be the same. The current syntax is for compatibility with previous format versions.
+                GerberX2FileReader.this.fs = new FS(new Valuer(ctx.x.getText()));
                 acceptStmt(GerberX2FileReader.this.fs);
             }
 

@@ -17,11 +17,11 @@ public class Dnn implements GerberX2Statement {
 
     private final String name;
 
-    public Dnn(int no) {
-        if (no < 10 || no > 999) {
+    public Dnn(int dCode) {
+        if (dCode < 10 || dCode > 999) {
             throw new IllegalArgumentException("number out of range [10..999]");
         }
-        this.name = "D" + no;
+        this.name = String.format("D%03d", dCode);
     }
 
     public Dnn(Token t) {

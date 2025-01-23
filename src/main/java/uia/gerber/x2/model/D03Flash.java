@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.Token;
 import uia.gerber.x2.TokenUtils;
 
 /**
- * D03
+ * D03 creates a flash object by replicating (flashing) the current aperture at the operation coordinates.
  *
  * @author Kyle K. Lin
  *

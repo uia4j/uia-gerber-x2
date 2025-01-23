@@ -2,168 +2,285 @@ package uia.gerber.x2;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import org.junit.Test;
 
 import uia.gerber.x2.builder.CommonGraphics;
-import uia.gerber.x2.builder.StepRepeatGraphics;
-import uia.gerber.x2.builder.TextGraphics;
 
 public class GerberX2FileWriterTest {
 
     @Test
     public void test1() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setDescription("TEST1 - Region");
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(4, 6)
+                .description("TEST1 - Region");
 
         writer.start();
 
-        CommonGraphics x2g = writer.getGraphics();
+        CommonGraphics cg = writer.getGraphics();
+        // region 1
+        cg.loadPolarity(true);
+        cg.createRegion(writer.xy(0.1), writer.xy(0.1))
+                .lineTo(writer.xy(0.5), writer.xy(0.1))
+                .lineTo(writer.xy(0.5), writer.xy(0.4))
+                .ccwTo(writer.xy(0.4), writer.xy(0.5), writer.xy(0.4), writer.xy(0.4))
+                .lineTo(writer.xy(0.1), writer.xy(0.5))
+                .lineTo(writer.xy(0.1), writer.xy(0.1))
+                .close();
 
-        // region #1
-        x2g.createRegion(writer.x(0.1), writer.y(0.1))
-                .lineTo(writer.x(0.1), writer.y(0.5))
-                .lineTo(writer.x(0.4), null)
-                .cwTo(writer.x(0.5), writer.y(0.4), null, writer.y(-0.1))
-                .lineTo(writer.x(0.5), writer.y(0.1))
-                .lineTo(writer.x(0.1), null);
-
-        x2g.loadPolarity(false);
-
-        // region #2
-        x2g.createRegion(writer.x(0.3), writer.y(0.3))
-                .lineTo(null, writer.y(0.4))
-                .lineTo(writer.x(0.4), null)
-                .lineTo(writer.x(0.4), writer.y(0.3))
-                .lineTo(writer.x(0.3), null);
+        // region 2
+        cg.loadPolarity(false);
+        cg.createRegion(writer.xy(0.4), writer.xy(0.4))
+                .lineTo(writer.xy(0.3), writer.xy(0.4))
+                .lineTo(writer.xy(0.3), writer.xy(0.3))
+                .lineTo(writer.xy(0.4), writer.xy(0.3))
+                .lineTo(writer.xy(0.4), writer.xy(0.4))
+                .close();
 
         writer.stop();
     }
 
     @Test
     public void test2() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setXValuer(2, 6);
-        writer.setYValuer(2, 6);
-        writer.setDescription("TEST2 - Common");
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST2 - AB");
 
         writer.start();
 
-        CommonGraphics x2g = writer.getGraphics();
-        x2g.defineCircle(10, new BigDecimal("10"), new BigDecimal("5"));
-        x2g.defineCircle(11, new BigDecimal("1"));
-        x2g.dnn(11);
-        x2g.move(
-                writer.x(BigDecimal.valueOf(-25)),
-                writer.y(BigDecimal.valueOf(-1)));
-        x2g.lineTo(
-                writer.x(BigDecimal.valueOf(25)),
-                writer.y(BigDecimal.valueOf(1)));
-        x2g.dnn(10);
-        x2g.flash(
-                writer.y(BigDecimal.ZERO),
-                writer.y(BigDecimal.ZERO));
+        CommonGraphics cg = writer.getGraphics();
+
+        // define AB
+        CommonGraphics bg = cg.defineBlock(12);
+        // region
+        bg.loadPolarity(true);
+        bg.createRegion(writer.xy(0.1), writer.xy(0.1))
+                .lineTo(writer.xy(0.5), writer.xy(0.1))
+                .lineTo(writer.xy(0.5), writer.xy(0.4))
+                .ccwTo(writer.xy(0.4), writer.xy(0.5), writer.xy(0.4), writer.xy(0.4))
+                .lineTo(writer.xy(0.1), writer.xy(0.5))
+                .lineTo(writer.xy(0.1), writer.xy(0.1))
+                .close();
+        // region
+        bg.createRegion(writer.xy(0.5), writer.xy(0.5))
+                .lineTo(writer.xy(0.5), writer.xy(0.6))
+                .lineTo(writer.xy(0.6), writer.xy(0.6))
+                .lineTo(writer.xy(0.6), writer.xy(0.5))
+                .lineTo(writer.xy(0.5), writer.xy(0.5))
+                .close();
+        // region
+        bg.loadPolarity(false);
+        bg.createRegion(writer.xy(0.4), writer.xy(0.4))
+                .lineTo(writer.xy(0.3), writer.xy(0.4))
+                .lineTo(writer.xy(0.3), writer.xy(0.3))
+                .lineTo(writer.xy(0.4), writer.xy(0.3))
+                .lineTo(writer.xy(0.4), writer.xy(0.4))
+                .close();
+        // close AB
+        bg.close();
+
+        cg.loadPolarity(true); // important
+        cg.dnn(12)
+                .flash(writer.xy(0), writer.xy(0))
+                .flash(writer.xy(1), writer.xy(0))
+                .flash(writer.xy(0), writer.xy(1))
+                .flash(writer.xy(1), writer.xy(1));
 
         writer.stop();
     }
 
     @Test
     public void test3() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setXValuer(2, 6);
-        writer.setYValuer(2, 6);
-        writer.setDescription("TEST3#1 TA");
-        writer.addAttribute(".Part", "PCB");
-        writer.addAttribute(".AperFunction", "SMD");
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST3 - AD");
 
         writer.start();
+
+        CommonGraphics cg = writer.getGraphics()
+                .defineCircle(10, new BigDecimal("10"))
+                .defineCircle(11, new BigDecimal("10"), new BigDecimal("6"))
+                .defineRectangle(12, new BigDecimal("10"), new BigDecimal("10"))
+                .defineRectangle(13, new BigDecimal("10"), new BigDecimal("10"), new BigDecimal("6"))
+                .defineRectangle(14, new BigDecimal("8"), new BigDecimal("8"));
+
+        cg.loadPolarity(true);
+        cg.dnn(10).flash(writer.xy(0), writer.xy(0));
+        cg.dnn(11).flash(writer.xy(20), writer.xy(20));
+        cg.dnn(12)
+                .flash(writer.xy(0), writer.xy(20))
+                .flash(writer.xy(10), writer.xy(10));
+        cg.dnn(13).flash(writer.xy(20), writer.xy(0));
+
+        cg.loadPolarity(false);
+        cg.dnn(14).flash(writer.xy(10), writer.xy(10));
+
         writer.stop();
+
     }
 
     @Test
-    public void test4_1() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setXValuer(2, 6);
-        writer.setYValuer(2, 6);
-        writer.setDescription("TEST4#1");
+    public void test4() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST4 - AB without Region");
 
         writer.start();
 
-        CommonGraphics x2g = writer.getGraphics();
-        x2g.defineCircle(10, new BigDecimal("10"), new BigDecimal("5"));
-        x2g.defineCircle(11, new BigDecimal("1"));
+        // define ADs in common graphics
+        CommonGraphics cg = writer.getGraphics()
+                .defineCircle(10, new BigDecimal("6"))
+                .defineRectangle(12, new BigDecimal("10"), new BigDecimal("10"))
+                .defineRectangle(14, new BigDecimal("8"), new BigDecimal("8"));
 
-        // SR - START
-        StepRepeatGraphics graphics = x2g.createStepRepeat(3, 2, 1, 2);
-        // Common
-        graphics.dnn(11);
-        graphics.move(
-                writer.x(BigDecimal.valueOf(-25)),
-                writer.y(BigDecimal.valueOf(-1)));
-        graphics.lineTo(
-                writer.x(BigDecimal.valueOf(25)),
-                writer.y(BigDecimal.valueOf(1)));
-        graphics.dnn(10);
-        graphics.flash(
-                writer.y(BigDecimal.ZERO),
-                writer.y(BigDecimal.ZERO));
-        // SR - END
+        // define AB
+        CommonGraphics bg = cg.defineBlock(101);
+        // AD012
+        bg.loadPolarity(true);
+        bg.dnn(12).flash(writer.xy(0), writer.xy(0));
+        // AD014
+        bg.loadPolarity(false);
+        bg.dnn(14).flash(writer.xy(0), writer.xy(0));
+        // AD010
+        bg.loadPolarity(true);
+        bg.dnn(10).flash(writer.xy(0), writer.xy(0));
+        // close AB
+        bg.close();
 
-        x2g.move((long) 0, (long) 0);
-
-        writer.stop();
-    }
-
-    @Test
-    public void test4_2() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setXValuer(2, 6);
-        writer.setYValuer(2, 6);
-        writer.setDescription("TEST4#2");
-
-        writer.start();
-        CommonGraphics x2g = writer.getGraphics();
-
-        // SR - START
-        StepRepeatGraphics srg = x2g.createStepRepeat(3, 2, 1, 2);
-        // region #1
-        srg.createRegion(writer.x(0.1), writer.y(0.1))
-                .lineTo(writer.x(0.1), writer.y(0.5))
-                .lineTo(writer.x(0.4), null)
-                .cwTo(writer.x(0.5), writer.y(0.4), null, writer.y(-0.1))
-                .lineTo(writer.x(0.5), writer.y(0.1))
-                .lineTo(writer.x(0.1), null);
-
-        srg.loadPolarity(false);
-
-        // region #2
-        srg.createRegion(writer.x(0.3), writer.y(0.3))
-                .lineTo(null, writer.y(0.4))
-                .lineTo(writer.x(0.4), null)
-                .lineTo(writer.x(0.4), writer.y(0.3))
-                .lineTo(writer.x(0.3), null);
-        // SR - END
+        cg.loadPolarity(true);
+        cg.dnn(101)
+                .flash(writer.xy(0), writer.xy(0))
+                .flash(writer.xy(15), writer.xy(15));
 
         writer.stop();
     }
 
     @Test
     public void test5() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-        writer.setXValuer(2, 6);
-        writer.setYValuer(2, 6);
+        // rectangle #1, using aperture
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST5 - Rectangle using AD");
+
         writer.start();
 
-        CommonGraphics g = writer.getGraphics();
-        TextGraphics tg = g.createText();
-        tg.text("Demo Info", writer.x(0.4), writer.y(0.4), 100);
+        CommonGraphics cg = writer.getGraphics();
+
+        // define AB
+        // define ADs in AB graphics
+        cg.defineBlock(170)
+                .defineRectangle(10, BigDecimal.valueOf(0.01), BigDecimal.valueOf(0.01))    // AD010, important, line width
+                .loadPolarity(true)
+                .dnn(10)
+                .move(writer.xy(0), writer.xy(0))
+                .lineTo(writer.xy(0.176), null)
+                .lineTo(null, writer.xy(0.276))
+                .lineTo(writer.xy(0), null)
+                .lineTo(null, writer.xy(0))
+                .close();
+
+        cg.dnn(170).flash(writer.xy(0), writer.xy(0));
 
         writer.stop();
     }
 
     @Test
-    public void test() {
-        System.out.println(UUID.randomUUID().toString());
+    public void test6() throws IOException {
+        // rectangle #2, using region
+        int scale = 1000;
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST6 - Rectangle using Region");
+
+        writer.start();
+
+        CommonGraphics cg = writer.getGraphics();
+
+        // define AB
+        CommonGraphics bg = cg.defineBlock(170);
+        // rectangle 1
+        bg.loadPolarity(true);
+        bg.createRegion(writer.xy(-0.00065 * scale), writer.xy(-0.00065 * scale))
+                .lineTo(writer.xy(0.00065 * scale), writer.xy(-0.00065 * scale))
+                .lineTo(writer.xy(0.00065 * scale), writer.xy(0.00065 * scale))
+                .lineTo(writer.xy(-0.00065 * scale), writer.xy(0.00065 * scale))
+                .lineTo(writer.xy(-0.00065 * scale), writer.xy(-0.00065 * scale))
+                .close();
+        // rectangle 2
+        bg.loadPolarity(false);
+        bg.createRegion(writer.xy(-0.0006 * scale), writer.xy(-0.0006 * scale))
+                .lineTo(writer.xy(0.0006 * scale), writer.xy(-0.0006 * scale))
+                .lineTo(writer.xy(0.0006 * scale), writer.xy(0.0006 * scale))
+                .lineTo(writer.xy(-0.0006 * scale), writer.xy(0.0006 * scale))
+                .lineTo(writer.xy(-0.0006 * scale), writer.xy(-0.0006 * scale))
+                .close();
+        // close AB
+        bg.close();
+
+        cg.loadPolarity(true)
+                .dnn(170)
+                .flash(writer.xy(0), writer.xy(0))
+                .flash(writer.xy(2), writer.xy(2))
+                .flash(writer.xy(2), writer.xy(0))
+                .flash(writer.xy(0), writer.xy(2));
+
+        writer.stop();
+    }
+
+    @Test
+    public void test7() throws IOException {
+        int scale = 1000;
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+                .fs(2, 6)
+                .description("TEST7 - Special");
+
+        writer.start();
+
+        CommonGraphics cg = writer.getGraphics();
+
+        // define AB
+        CommonGraphics bg = cg.defineBlock(130);
+        // rectangle 1
+        bg.loadPolarity(true);
+        bg.createRegion(writer.xy(-0.00065 * scale), writer.xy(-0.00065 * scale))
+                .lineTo(writer.xy(0.00065 * scale), writer.xy(-0.00065 * scale))
+                .lineTo(writer.xy(0.00065 * scale), writer.xy(0.00065 * scale))
+                .lineTo(writer.xy(-0.00065 * scale), writer.xy(0.00065 * scale))
+                .lineTo(writer.xy(-0.00065 * scale), writer.xy(-0.00065 * scale))
+                .close();
+        // rectangle 2
+        bg.loadPolarity(false);
+        bg.createRegion(writer.xy(-0.0006 * scale), writer.xy(-0.0006 * scale))
+                .lineTo(writer.xy(0.0006 * scale), writer.xy(-0.0006 * scale))
+                .lineTo(writer.xy(0.0006 * scale), writer.xy(0.0006 * scale))
+                .lineTo(writer.xy(-0.0006 * scale), writer.xy(0.0006 * scale))
+                .lineTo(writer.xy(-0.0006 * scale), writer.xy(-0.0006 * scale))
+                .close();
+        // circle
+        bg.defineCircle(131, BigDecimal.valueOf(0.001 * scale));
+        bg.loadPolarity(true);
+        bg.dnn(131);
+        bg.flashMO(0.0, 0.0);
+        // special
+        bg.loadPolarity(false);
+        bg.createRegion(writer.xy(0.0), writer.xy(0.0))
+                .lineTo(writer.xy(0.00025 * scale), writer.xy(0))
+                .ccwTo(writer.xy(0), writer.xy(0.00025 * scale), writer.xy(0), writer.xy(0))
+                .lineTo(writer.xy(0), writer.xy(0))
+                .lineTo(writer.xy(-0.00025 * scale), writer.xy(0))
+                .ccwTo(writer.xy(0), writer.xy(-0.00025 * scale), writer.xy(0), writer.xy(0))
+                .lineTo(writer.xy(0), writer.xy(0))
+                .close();
+        // close AB
+        bg.close();
+
+        cg.loadPolarity(true);
+        cg.dnn(130)
+                .flash(writer.xy(0), writer.xy(0))
+                .flash(writer.xy(2), writer.xy(0))
+                .flash(writer.xy(2), writer.xy(2))
+                .flash(writer.xy(0), writer.xy(2));
+
+        writer.stop();
     }
 }

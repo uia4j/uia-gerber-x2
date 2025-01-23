@@ -7,17 +7,21 @@ import org.junit.Test;
 
 public class TextCreatorTest {
 
+    private static final Font FONT = new Font("Dialog", Font.BOLD, 140);
+
+    private static final char ch = '3';
+
     @Test
     public void testBuild() throws Exception {
         TextCreator tc = new TextCreator();
-        tc.build('/', new Font("Arial", Font.PLAIN, 140));
+        tc.build(ch, FONT);
         tc.print();
     }
 
     @Test
     public void testPath() throws Exception {
         TextCreator tc = new TextCreator();
-        List<List<Integer>> paths = tc.build('B', new Font("Arial", Font.PLAIN, 140));
+        List<List<Integer>> paths = tc.build(ch, FONT);
         tc.print();
         tc.print(paths);
     }

@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.Token;
 import uia.gerber.x2.TokenUtils;
 
 /**
- * D02
+ * D02 moves the current point to the operation coordinates. No graphical object is generated.
  *
  * @author Kyle K. Lin
  *

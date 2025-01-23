@@ -9,7 +9,7 @@ import java.util.List;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * AD: Aperture Definition.
+ * AD(Aperture Definition) creates an aperature.
  *
  * @author Kyle K. Lin
  *
@@ -18,7 +18,7 @@ public class AD implements GerberX2Statement {
 
     private List<ATTR> attributes;
 
-    private String dnn;
+    private String dCode;
 
     private String template;
 
@@ -29,11 +29,11 @@ public class AD implements GerberX2Statement {
         this.xs = new ArrayList<>();
     }
 
-    public AD(int no, String template) {
-        if (no < 10 || no > 999) {
+    public AD(int dCode, String template) {
+        if (dCode < 10 || dCode > 999) {
             throw new IllegalArgumentException("number out of range [10..999]");
         }
-        this.dnn = String.format("%03d", no);
+        this.dCode = String.format("D%03d", dCode);
         this.template = template;
         this.attributes = new ArrayList<>();
         this.xs = new ArrayList<>();
@@ -55,11 +55,11 @@ public class AD implements GerberX2Statement {
     }
 
     public String getDnn() {
-        return this.dnn;
+        return this.dCode;
     }
 
     public void setDnn(String dnn) {
-        this.dnn = dnn;
+        this.dCode = dnn;
     }
 
     public String getTemplate() {
@@ -83,7 +83,7 @@ public class AD implements GerberX2Statement {
         for (ATTR attr : this.attributes) {
             attr.write(out);
         }
-        out.write(String.format("%%AD%S%S,%S", this.dnn, this.template, this.xs.get(0)).getBytes());
+        out.write(String.format("%%AD%S%S,%S", this.dCode, this.template, this.xs.get(0)).getBytes());
         for (int i = 1; i < this.xs.size(); i++) {
             out.write(String.format("X%S", this.xs.get(i)).getBytes());
         }

@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * MO
+ * MO(Mode) sets the file unit to either millimeter or inch.
  *
  * @author Kyle K. Lin
  *

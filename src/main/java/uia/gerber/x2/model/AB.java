@@ -8,7 +8,7 @@ import java.util.List;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * AD: Aperture block.
+ * AB(Block Aperture) creates a block aperture.
  *
  * @author Kyle K. Lin
  *

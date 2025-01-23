@@ -42,8 +42,9 @@ public abstract class ASCII {
         }
     }
 
-    public List<GerberX2Statement> g36(long left, long top, int unit) {
-        int w = getWidth();
+    public List<GerberX2Statement> g36(long fsX, long fsY, int scale) {
+        fsY += (getHeight() * scale);
+        int fsW = getWidth();
         List<GerberX2Statement> result = new ArrayList<>();
         int[][] data = getData();
         if (data.length == 0) {
@@ -53,19 +54,20 @@ public abstract class ASCII {
         for (int i = 0; i < data.length; i++) {
             int[] path = data[i];
 
+            // dark or clear
             result.add(new LP(path[0] == 0x31));
 
             int p = path[1];
-            long x = left + (p % w) * unit;
-            long y = top - (p / w) * unit;
-            G36Region g36 = new G36Region(new D02Move(x, y));
+            long _fsX = fsX + (p % fsW) * scale;
+            long _fsY = fsY - (p / fsW) * scale;
+            G36Region g36 = new G36Region(new D02Move(_fsX, _fsY));
             for (int j = 2; j < path.length; j++) {
                 p = path[j];
-                long _x = left + (p % w) * unit;
-                long _y = top - (p / w) * unit;
-                g36.contours.add(new Contour(new D01Plot(_x == x ? null : _x, _y == y ? null : _y)));
-                x = _x;
-                y = _y;
+                long _x = fsX + (p % fsW) * scale;
+                long _y = fsY - (p / fsW) * scale;
+                g36.contours.add(new Contour(new D01Plot(_x == _fsX ? null : _x, _y == _fsY ? null : _y)));
+                _fsX = _x;
+                _fsY = _y;
             }
             result.add(g36);
         }

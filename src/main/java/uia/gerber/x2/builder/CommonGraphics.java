@@ -15,6 +15,7 @@ import uia.gerber.x2.model.Dnn;
 import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G02;
 import uia.gerber.x2.model.G03;
+import uia.gerber.x2.model.G36Region.Contour;
 import uia.gerber.x2.model.LP;
 
 /**
@@ -29,91 +30,288 @@ public class CommonGraphics implements GerberX2Graphics {
 
     OutputStream out;
 
-    private int lastState;
+    int lastState;
 
-    private GerberX2Graphics lastGS;
+    GerberX2Graphics lastGS;
 
-    public CommonGraphics(GerberX2FileWriter writer) throws IOException {
+    private Long lastX;
+
+    private Long lastY;
+
+    /**
+     * The constructor.
+     *
+     * @param writer
+     */
+    public CommonGraphics(GerberX2FileWriter writer) {
         this.writer = writer;
         this.out = writer.getOutputStream();
     }
 
-    public CommonGraphics(GerberX2FileWriter writer, int initState) throws IOException {
+    /**
+     * The constructor.
+     *
+     * @param writer
+     * @param initState
+     */
+    public CommonGraphics(GerberX2FileWriter writer, int initState) {
         this.writer = writer;
         this.out = writer.getOutputStream();
         this.lastState = initState;
     }
 
-    public void defineCircle(int no, BigDecimal diameter) throws IOException {
-        defineCircle(no, diameter, null);
-    }
-
-    public void defineCircle(int no, BigDecimal diameter, BigDecimal holeDiameter) throws IOException {
-        if (!this.writer.addDnn(no)) {
-            throw new IOException(String.format("ADD%03d already exists", no));
+    /**
+     * Defines a circular aperture.
+     *
+     * @param dCode The d code.
+     * @param moDiameter
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineCircle(int dCode, BigDecimal moDiameter) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
         }
         endLast();
-        new ADCircle(no, diameter, holeDiameter).write(this.out);
+        new ADCircle(
+                dCode,
+                moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                null).write(this.out);
+        return this;
     }
 
-    public void defineRectangle(int no, BigDecimal width, BigDecimal height) throws IOException {
-        defineRectangle(no, width, height, null);
-    }
-
-    public void defineRectangle(int no, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) throws IOException {
-        if (!this.writer.addDnn(no)) {
-            throw new IOException(String.format("ADD%03d already exists", no));
+    /**
+     * Defines a circular aperture.
+     *
+     * @param dCode The d code.
+     * @param moDiameter
+     * @param moHoleDiameter
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineCircle(int dCode, BigDecimal moDiameter, BigDecimal moHoleDiameter) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
         }
         endLast();
-        new ADRectangle(no, width, height, holeDiameter).write(this.out);
+        new ADCircle(
+                dCode,
+                moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
+        return this;
     }
 
-    public void defineObound(int no, BigDecimal width, BigDecimal height) throws IOException {
-        defineObound(no, width, height, null);
-    }
-
-    public void defineObound(int no, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) throws IOException {
-        if (!this.writer.addDnn(no)) {
-            throw new IOException(String.format("ADD%03d already exists", no));
+    public CommonGraphics defineSquare(int dCode, BigDecimal moWidth) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
         }
         endLast();
-        new ADObound(no, width, height, holeDiameter).write(this.out);
+        BigDecimal _w = moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+        new ADRectangle(dCode, _w, _w, null).write(this.out);
+        return this;
     }
 
-    public void definePolygon(int no, long diameter, Long holeDiameter) throws IOException {
-        // TODO:
-    }
-
-    public void loadPolarity(boolean dark) throws IOException {
+    /**
+     * Defines a rectangular aperture.
+     *
+     * @param dCode The d code.
+     * @param moWidth
+     * @param moHeight
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineRectangle(int dCode, BigDecimal moWidth, BigDecimal moHeight) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
+        }
         endLast();
-        if (dark) {
+        new ADRectangle(
+                dCode,
+                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                null).write(this.out);
+        return this;
+    }
+
+    /**
+     * Defines a rectangular aperture.
+     *
+     * @param dCode The d code.
+     * @param moWidth
+     * @param moHeight
+     * @param moHoleDiameter
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineRectangle(int dCode, BigDecimal moWidth, BigDecimal moHeight, BigDecimal moHoleDiameter) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
+        }
+        endLast();
+        new ADRectangle(
+                dCode,
+                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
+        return this;
+    }
+
+    /**
+     *
+     * @param dCode
+     * @param moWidth
+     * @param moHeight
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineObound(int dCode, BigDecimal moWidth, BigDecimal moHeight) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
+        }
+        endLast();
+        new ADObound(
+                dCode,
+                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                null).write(this.out);
+        return this;
+    }
+
+    /**
+     *
+     * @param dCode
+     * @param moWidth
+     * @param moHeight
+     * @param moHoleDiameter
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics defineObound(int dCode, BigDecimal moWidth, BigDecimal moHeight, BigDecimal moHoleDiameter) throws IOException {
+        if (!this.writer.addDnn(dCode)) {
+            throw new IOException(String.format("ADD%03d already exists", dCode));
+        }
+        endLast();
+        new ADObound(
+                dCode,
+                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                moHoleDiameter).write(this.out);
+        return this;
+    }
+
+    /**
+     * Defines a block aperture.
+     *
+     * @param dCode The d code.
+     * @return New AB graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public BlockDefineGraphics defineBlock(int dCode) throws IOException {
+        endLast();
+        if (!this.writer.addDnn(dCode)) {
+            return null;
+        }
+        BlockDefineGraphics gs = new BlockDefineGraphics(dCode, this.writer);
+        this.lastGS = gs;
+        return gs;
+    }
+
+    /**
+     *
+     * @param dark
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics loadPolarity(boolean dark) throws IOException {
+        endLast();
+        if (dark && !this.writer.isDark()) {
             // dark
             new LP("D").write(this.out);
+            this.writer.setDark(true);
         }
-        else {
+        else if (!dark && this.writer.isDark()) {
             // clear
             new LP("C").write(this.out);
+            this.writer.setDark(false);
         }
+        return this;
     }
 
-    public void dnn(int no) throws IOException {
+    /**
+     *
+     * @param dCode The d code
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics dnn(int dCode) throws IOException {
         endLast();
-        if (!this.writer.contains(no)) {
-            throw new IOException(String.format("D%03d not found", no));
+        if (!this.writer.contains(dCode)) {
+            throw new IOException(String.format("D%03d not found", dCode));
         }
-        new Dnn(no).write(this.out);
+        new Dnn(dCode).write(this.out);
+        return this;
     }
 
-    public void lineTo(Long x, Long y) throws IOException {
+    /**
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics lineTo(Long fsX, Long fsY) throws IOException {
         endLast();
         if (this.lastState != 1) {
             new G01().write(this.out);
         }
-        new D01Plot(x, y).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY)).write(this.out);
+        apply(fsX, fsY);
         this.lastState = 1;
+        return this;
     }
 
-    public void cwArc(Long x, Long y, Long i, Long j) throws IOException {
+    /**
+     *
+     * @param fsX coordination x with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics lineToH(Long fsX) throws IOException {
+        if (this.lastState != 1) {
+            new Contour(Contour.G01).write(this.out);
+        }
+        new D01Plot(fsX, null).write(this.out);
+        this.lastX = fsX;
+        this.lastState = 1;
+        return this;
+    }
+
+    /**
+    *
+    * @param fsY coordination y with FS format.
+    * @return This graphics object.
+    * @throws IOException Failed to write to the output stream.
+    */
+    public CommonGraphics lineToV(Long fsY) throws IOException {
+        if (this.lastState != 1) {
+            new Contour(Contour.G01).write(this.out);
+        }
+        new D01Plot(null, fsY).write(this.out);
+        this.lastY = fsY;
+        this.lastState = 1;
+        return this;
+    }
+
+    /**
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsI offset coordination i with FS format.
+     * @param fsJ offset coordination j with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics cwArc(Long fsX, Long fsY, Long fsI, Long fsJ) throws IOException {
         endLast();
         if (this.lastState == 1) {
             new G02().write(this.out);
@@ -121,11 +319,22 @@ public class CommonGraphics implements GerberX2Graphics {
         else if (this.lastState == 3) {
             new G02().write(this.out);
         }
-        new D01Plot(x, y, i, j).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), vx(fsI), vy(fsJ)).write(this.out);
+        apply(fsX, fsY);
         this.lastState = 2;
+        return this;
     }
 
-    public void ccwArc(Long x, Long y, Long i, Long j) throws IOException {
+    /**
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsI offset coordination i with FS format.
+     * @param fsJ offset coordination j with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics ccwArc(Long fsX, Long fsY, Long fsI, Long fsJ) throws IOException {
         endLast();
         if (this.lastState == 1) {
             new G03().write(this.out);
@@ -133,47 +342,201 @@ public class CommonGraphics implements GerberX2Graphics {
         else if (this.lastState == 2) {
             new G03().write(this.out);
         }
-        new D01Plot(x, y, i, j).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), vx(fsI), vy(fsJ)).write(this.out);
+        apply(fsX, fsY);
         this.lastState = 3;
+        return this;
     }
 
-    public void move(Long x, Long y) throws IOException {
+    /**
+     * Moves an object to new coordination.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics move(Long fsX, Long fsY) throws IOException {
         endLast();
-        new D02Move(x, y).write(this.out);
+        new D02Move(fsX, fsY).write(this.out);
+        apply(fsX, fsY);
+        return this;
     }
 
-    public void flash(Long x, Long y) throws IOException {
+    /**
+     * Moves an object to new coordination.
+     *
+     * @param fsX coordination x with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics moveH(Long fsX) throws IOException {
         endLast();
-        new D03Flash(x, y).write(this.out);
+        new D02Move(fsX, null).write(this.out);
+        this.lastX = fsX;
+        return this;
     }
 
-    public RegionGraphics createRegion(long x, long y) throws IOException {
+    /**
+     * Moves an object to new coordination.
+     *
+     * @param fsY coordination y with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics moveV(Long fsY) throws IOException {
         endLast();
-        RegionGraphics gs = new RegionGraphics(x, y, this.lastState, this.out);
-        this.lastGS = gs;
-        return gs;
+        new D02Move(null, fsY).write(this.out);
+        this.lastY = fsY;
+        return this;
     }
 
+    /**
+     * Flashes an object at a specific coordination.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics flash(Long fsX, Long fsY) throws IOException {
+        endLast();
+        new D03Flash(vx(fsX), vy(fsY)).write(this.out);
+        apply(fsX, fsY);
+        return this;
+    }
+
+    /**
+     * Flashes an object at a specific coordination using MO unit.
+     *
+     * @param moX coordination x with MO unit.
+     * @param moY coordination y with MO unit.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics flashMO(double moX, double moY) throws IOException {
+        return flash(this.writer.xy(moX), this.writer.xy(moY));
+    }
+
+    public CommonGraphics flashZero() throws IOException {
+        return flash(0L, 0L);
+    }
+
+    /**
+     * Creates a rectangle.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsW coordination width with FS format.
+     * @param fsH coordination height with FS format.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH) throws IOException {
+        return move(fsX, fsY)
+                .lineToH(fsX + fsW)
+                .lineToV(fsY + fsH)
+                .lineToH(fsX)
+                .lineToV(fsY);
+    }
+
+    /**
+     * Creates a rectangle.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsW coordination width with FS format.
+     * @param fsH coordination height with FS format.
+     * @param dCode The d code.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH, int dCode) throws IOException {
+        return dnn(dCode)
+                .move(fsX, fsY)
+                .lineToH(fsX + fsW)
+                .lineToV(fsY + fsH)
+                .lineToH(fsX)
+                .lineToV(fsY);
+    }
+
+    /**
+     * Creates a rectangle.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsW coordination width with FS format.
+     * @param fsH coordination height with FS format.
+     * @param dCode The d code.
+     * @param dark Dark or clear.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH, int dCode, boolean dark) throws IOException {
+        return loadPolarity(dark)
+                .dnn(dCode)
+                .move(fsX, fsY)
+                .lineToH(fsX + fsW)
+                .lineToV(fsY + fsH)
+                .lineToH(fsX)
+                .lineToV(fsY);
+    }
+
+    /**
+     * Creates a text graphics object.
+     *
+     * @return A text graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
     public TextGraphics createText() throws IOException {
+        return createText("Dialog");
+    }
+
+    /**
+     * Creates a text graphics object.
+     *
+     * @param fontName The font name. 'Dialog' or 'Arial'.
+     * @return A text graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public TextGraphics createText(String fontName) throws IOException {
         endLast();
-        TextGraphics gs = new TextGraphics(this.out);
+        TextGraphics gs = new TextGraphics(this.out, fontName);
         this.lastGS = gs;
         return gs;
     }
 
-    public StepRepeatGraphics createStepRepeat(int x, int y, long i, long j) throws IOException {
+    /**
+     * Creates a region graphics object.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @return A region graphics graphics.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public RegionGraphics createRegion(long fsX, long fsY) throws IOException {
         endLast();
-        StepRepeatGraphics gs = new StepRepeatGraphics(x, y, i, j, this.writer, this.lastState);
+        RegionGraphics gs = new RegionGraphics(fsX, fsY, this.lastState, this.out);
         this.lastGS = gs;
         return gs;
     }
 
-    private void endLast() throws IOException {
-        if (this.lastGS != null) {
-            this.lastState = this.lastGS.lastState();
-            this.lastGS.close();
-            this.lastGS = null;
-        }
+    /**
+     * Create a step-repeat graphics object.
+     *
+     * @param fsX coordination x with FS format.
+     * @param fsY coordination y with FS format.
+     * @param fsX coordination offset x with FS format.
+     * @param fsY coordination offset y with FS format.
+     * @return
+     * @throws IOException Failed to write to output stream.
+     */
+    @Deprecated
+    public StepRepeatGraphics createStepRepeat(int fsX, int fsY, long fsI, long fsJ) throws IOException {
+        endLast();
+        StepRepeatGraphics gs = new StepRepeatGraphics(fsX, fsY, fsI, fsJ, this.writer, this.lastState);
+        this.lastGS = gs;
+        return gs;
     }
 
     @Override
@@ -183,12 +546,42 @@ public class CommonGraphics implements GerberX2Graphics {
 
     @Override
     public void close() throws IOException {
+        endLast();
         if (this.lastGS != null) {
             this.lastState = this.lastGS.lastState();
             this.lastGS.close();
             this.lastGS = null;
         }
         this.writer = null;
+    }
+
+    protected void endLast() throws IOException {
+        if (this.lastGS != null) {
+            this.lastState = this.lastGS.lastState();
+            this.lastGS.close();
+            this.lastGS = null;
+        }
+    }
+
+    private void apply(Long fsX, Long fsY) {
+        if (fsX != null) {
+            this.lastX = fsX;
+        }
+        if (fsY != null) {
+            this.lastY = fsY;
+        }
+    }
+
+    private Long vx(Long fsX) {
+        return this.lastX != null
+                ? fsX == null || this.lastX.longValue() == fsX ? null : fsX
+                : fsX;
+    }
+
+    private Long vy(Long fsY) {
+        return this.lastY != null
+                ? fsY == null || this.lastY.longValue() == fsY ? null : fsY
+                : fsY;
     }
 
 }

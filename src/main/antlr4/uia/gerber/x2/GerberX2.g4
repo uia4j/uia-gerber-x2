@@ -18,7 +18,7 @@ gerberX2    :   (statement)* M02 EOB EOF
             ; 
  
 statement   :	cmd EOB 
-			|	PARAM extCmd EOB PARAM
+			|	PARAM (extCmd EOB)+ PARAM
             ;
 
 cmd  		:  	g04
@@ -31,6 +31,7 @@ cmd  		:  	g04
 			| 	d03
 			| 	dnn 
 			| 	g36
+			|   string
             ;
 
 extCmd      :	mo 
@@ -46,6 +47,7 @@ extCmd      :	mo
 			|	td
 			|	sr
 			|	ab
+			|   string
             ;
 
 mo          :   MO unit=('MM' | 'IN'); 									// Mode, MM: millimeter, IN: inch

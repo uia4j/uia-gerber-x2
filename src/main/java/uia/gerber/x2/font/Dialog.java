@@ -19,10 +19,6 @@ import uia.gerber.x2.font.arial.D044Comma;
 import uia.gerber.x2.font.arial.D045Dash;
 import uia.gerber.x2.font.arial.D046Dot;
 import uia.gerber.x2.font.arial.D047Slash;
-import uia.gerber.x2.font.arial.D0480;
-import uia.gerber.x2.font.arial.D0491;
-import uia.gerber.x2.font.arial.D0502;
-import uia.gerber.x2.font.arial.D0513;
 import uia.gerber.x2.font.arial.D0524;
 import uia.gerber.x2.font.arial.D0535;
 import uia.gerber.x2.font.arial.D0546;
@@ -44,14 +40,12 @@ import uia.gerber.x2.font.arial.D069E;
 import uia.gerber.x2.font.arial.D070F;
 import uia.gerber.x2.font.arial.D071G;
 import uia.gerber.x2.font.arial.D072H;
-import uia.gerber.x2.font.arial.D073I;
 import uia.gerber.x2.font.arial.D074J;
 import uia.gerber.x2.font.arial.D075K;
 import uia.gerber.x2.font.arial.D076L;
 import uia.gerber.x2.font.arial.D077M;
 import uia.gerber.x2.font.arial.D078N;
 import uia.gerber.x2.font.arial.D079O;
-import uia.gerber.x2.font.arial.D080P;
 import uia.gerber.x2.font.arial.D081Q;
 import uia.gerber.x2.font.arial.D082R;
 import uia.gerber.x2.font.arial.D083S;
@@ -68,20 +62,16 @@ import uia.gerber.x2.font.arial.D093RSB;
 import uia.gerber.x2.font.arial.D094;
 import uia.gerber.x2.font.arial.D095UnderScore;
 import uia.gerber.x2.font.arial.D096;
-import uia.gerber.x2.font.arial.D097a;
 import uia.gerber.x2.font.arial.D098b;
 import uia.gerber.x2.font.arial.D099c;
 import uia.gerber.x2.font.arial.D100d;
-import uia.gerber.x2.font.arial.D101e;
 import uia.gerber.x2.font.arial.D102f;
 import uia.gerber.x2.font.arial.D103g;
 import uia.gerber.x2.font.arial.D104h;
 import uia.gerber.x2.font.arial.D105i;
 import uia.gerber.x2.font.arial.D106j;
 import uia.gerber.x2.font.arial.D107k;
-import uia.gerber.x2.font.arial.D108l;
 import uia.gerber.x2.font.arial.D109m;
-import uia.gerber.x2.font.arial.D110n;
 import uia.gerber.x2.font.arial.D111o;
 import uia.gerber.x2.font.arial.D112p;
 import uia.gerber.x2.font.arial.D113q;
@@ -98,6 +88,16 @@ import uia.gerber.x2.font.arial.D123LCB;
 import uia.gerber.x2.font.arial.D124;
 import uia.gerber.x2.font.arial.D125RCB;
 import uia.gerber.x2.font.arial.D126;
+import uia.gerber.x2.font.dialog.D0480;
+import uia.gerber.x2.font.dialog.D0491;
+import uia.gerber.x2.font.dialog.D0502;
+import uia.gerber.x2.font.dialog.D0513;
+import uia.gerber.x2.font.dialog.D073I;
+import uia.gerber.x2.font.dialog.D080P;
+import uia.gerber.x2.font.dialog.D097a;
+import uia.gerber.x2.font.dialog.D101e;
+import uia.gerber.x2.font.dialog.D108l;
+import uia.gerber.x2.font.dialog.D110n;
 
 /**
  * new Font("Arial", Font.PLAIN, 140)
@@ -105,7 +105,7 @@ import uia.gerber.x2.font.arial.D126;
  * @author Kyle K. Lin
  *
  */
-public class Arial implements GFont {
+public class Dialog implements GFont {
 
     private static final ASCII[] ascii = new ASCII[128];
 

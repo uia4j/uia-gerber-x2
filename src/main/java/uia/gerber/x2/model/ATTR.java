@@ -8,7 +8,13 @@ import java.util.List;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * The attribute for TF, TA, TO, TD.
+ * The attribute for TF, TA, TO, TD.<br>
+ * <ul>
+ *  <li>TF：file attribute.</li>
+ *  <li>TA：apertue attribute.</li>
+ *  <li>TO：object attribute.</li>
+ *  <li>TD：delete attribute.</li>
+ * <ul>
  *
  * @author Kyle K. Lin
  *

@@ -12,9 +12,9 @@ import java.math.BigDecimal;
  */
 public class ADCircle extends AD {
 
-    private BigDecimal diameter;
+    private final BigDecimal diameter;
 
-    private BigDecimal holeDiameter;
+    private final BigDecimal holeDiameter;
 
     /**
      * The constructor.
@@ -32,16 +32,8 @@ public class ADCircle extends AD {
         return this.diameter;
     }
 
-    public void setDiameter(BigDecimal diameter) {
-        this.diameter = diameter;
-    }
-
     public BigDecimal getHoleDiameter() {
         return this.holeDiameter;
-    }
-
-    public void setHoleDiameter(BigDecimal holeDiameter) {
-        this.holeDiameter = holeDiameter;
     }
 
     @Override

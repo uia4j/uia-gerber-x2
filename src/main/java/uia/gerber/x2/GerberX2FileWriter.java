@@ -12,7 +12,6 @@ import uia.gerber.x2.model.FS;
 import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G04Comment;
 import uia.gerber.x2.model.G75;
-import uia.gerber.x2.model.LP;
 import uia.gerber.x2.model.MO;
 
 /**
@@ -23,15 +22,13 @@ import uia.gerber.x2.model.MO;
  */
 public class GerberX2FileWriter {
 
+    private final OutputStream out;
+
     private String description;
 
     private MO.UnitType unit;
 
-    private Valuer xValuer;
-
-    private Valuer yValuer;
-
-    private OutputStream out;
+    private Valuer fsValuer;
 
     private int step;
 
@@ -41,114 +38,217 @@ public class GerberX2FileWriter {
 
     private List<ATTR> attrs;
 
+    private int rowCount;
+
+    private GerberX2FileWriterDebugger debugger;
+
+    private boolean dark;
+
+    /**
+     * The constructor.
+     *
+     * @param out The output stream.
+     */
     public GerberX2FileWriter(OutputStream out) {
+        this.out = new OutputStreamExt(out);
         this.unit = MO.UnitType.MM;
-        this.xValuer = new Valuer(4, 6);
-        this.yValuer = new Valuer(4, 6);
-        this.out = out;
+        this.fsValuer = new Valuer(3, 6);
         this.ad = new ArrayList<>();
         this.attrs = new ArrayList<ATTR>();
     }
 
-    public void addAttribute(String name, String... fields) {
+    /**
+     * Return the debugger.
+     *
+     * @return The debugger.
+     */
+    public GerberX2FileWriterDebugger getDebugger() {
+        return this.debugger;
+    }
+
+    /**
+     * Sets the debugger.
+     * @param debugger A debugger.
+     */
+    public void setDebugger(GerberX2FileWriterDebugger debugger) {
+        this.debugger = debugger;
+    }
+
+    /**
+     * Returns the output stream.
+     *
+     * @return The output stream.
+     */
+    public OutputStream getOutputStream() {
+        return this.out;
+    }
+
+    /**
+     * Adds a file attribute.
+     * @param name The attribute name.
+     * @param fields fields.
+     *
+     * @return This writer.
+     */
+    public GerberX2FileWriter attr(String name, String... fields) {
         ATTR attr = new ATTR("TF");
         attr.setName(name);
         for (String f : fields) {
             attr.getFields().add(f);
         }
         this.attrs.add(attr);
+        return this;
     }
 
-    public OutputStream getOutputStream() {
-        return this.out;
-    }
-
-    public void setDescription(String description) {
+    /**
+     * Sets the description.
+     *
+     * @param description The description.
+     * @return This writer.
+     */
+    public GerberX2FileWriter description(String description) {
         if (this.step == 0) {
             this.description = description;
         }
+        return this;
     }
 
-    public void setUnit(MO.UnitType unit) {
+    /**
+     * Sets the unit.
+     *
+     * @param unit The unit.
+     * @return This writer.
+     */
+    public GerberX2FileWriter unit(MO.UnitType unit) {
         if (this.step == 0) {
             this.unit = unit;
         }
+        return this;
     }
 
-    public void setXValuer(int xIntDigi, int xDecDigi) {
+    /**
+     * Sets the format specification.
+     *
+     * @param intDigi The digi of integer.
+     * @param decDigi The digi of decimal.
+     * @return This writer.
+     */
+    public GerberX2FileWriter fs(int intDigi, int decDigi) {
         if (this.step == 0) {
-            this.xValuer = new Valuer(xIntDigi, xDecDigi);
+            this.fsValuer = new Valuer(intDigi, decDigi);
         }
+        return this;
     }
 
-    public void setYValuer(int yIntDigi, int yDecDigi) {
-        if (this.step == 0) {
-            this.yValuer = new Valuer(yIntDigi, yDecDigi);
-        }
+    /**
+     * Checks if the graphics is dark mode.
+     *
+     * @return True if graphics is dark.
+     */
+    public boolean isDark() {
+        return this.dark;
     }
 
-    public Valuer x() {
-        return this.xValuer;
+    /**
+     * Sets if the graphics is dark mode.
+     *
+     * @param dark True if graphics is dark.
+     */
+    public void setDark(boolean dark) {
+        this.dark = dark;
     }
 
-    public Valuer y() {
-        return this.yValuer;
+    /**
+     * Returns the format specification.
+     *
+     * @return The format specification.
+     */
+    public Valuer fs() {
+        return this.fsValuer;
     }
 
-    public Long x(long v) {
-        return this.xValuer.out(v);
+    /**
+     * Converts the value to FS format.
+     *
+     * @param v The value.
+     * @return Value meets FS format.
+     */
+    public Long xy(long v) {
+        return this.fsValuer.out(v);
     }
 
-    public Long x(double v) {
-        return this.xValuer.out(v);
+    /**
+     * Converts the value to FS format.
+     *
+     * @param v The value.
+     * @return Value meets FS format.
+     */
+    public Long xy(double v) {
+        return this.fsValuer.out(v);
     }
 
-    public Long x(BigDecimal v) {
-        return this.xValuer.out(v);
+    /**
+     * Converts the value to FS format.
+     *
+     * @param v The value.
+     * @return Value meets FS format.
+     */
+    public Long xy(BigDecimal v) {
+        return this.fsValuer.out(v);
     }
 
-    public Long y(long v) {
-        return this.yValuer.out(v);
+    /**
+     * Checks if d code is exist or not.
+     *
+     * @param dCode The d code.
+     * @return True if the d code already exists.
+     */
+    public boolean contains(int dCode) {
+        return this.ad.contains(dCode);
     }
 
-    public Long y(double v) {
-        return this.yValuer.out(v);
-    }
-
-    public Long y(BigDecimal v) {
-        return this.yValuer.out(v);
-    }
-
-    public boolean contains(int no) {
-        return this.ad.contains(no);
-    }
-
-    public boolean addDnn(int no) {
-        if (this.ad.contains(no)) {
+    /**
+     * Adds a new d code.
+     * @param dCode The d code.
+     *
+     * @return True if the new d code is added. False if the d code already exists.
+     */
+    public boolean addDnn(int dCode) {
+        if (this.ad.contains(dCode)) {
             return false;
         }
 
-        this.ad.add(no);
+        this.ad.add(dCode);
         return true;
     }
 
     /**
+     * Returns row count.
+     * @return The row count.
+     */
+    public int getRowCount() {
+        return this.rowCount;
+    }
+
+    /**
+     * Starts the writer.
      *
-     * @return 0: pass, 1: started already, 2: closed.
-     * @throws IOException
+     * @return 0: success, 1: started already, 2: closed.
+     * @throws IOException Failed to write records into output stream.
      */
     public int start() throws IOException {
         if (this.step != 0) {
             return this.step;
         }
 
+        this.rowCount = 0;
+
         new G04Comment(this.description).write(this.out);
+        new FS(this.fsValuer).write(this.out);
+        new MO(this.unit).write(this.out);
         for (ATTR attr : this.attrs) {
             attr.write(this.out);
         }
-        new FS(this.xValuer, this.yValuer).write(this.out);
-        new MO(this.unit).write(this.out);
-        new LP("D").write(this.out);
         new G01().write(this.out);
         new G75().write(this.out);
 
@@ -157,13 +257,19 @@ public class GerberX2FileWriter {
         return 0;
     }
 
+    /**
+     * Returns the graphics object.
+     *
+     * @return The graphics object.
+     */
     public CommonGraphics getGraphics() {
         return this.graphics;
     }
 
     /**
+     * Stops the writer.
      *
-     * @return 0: pass, 1: not started, 2: closed.
+     * @return 0: passed, 1: not started, 2: closed.
      * @throws IOException
      */
     public int stop() throws IOException {
@@ -174,8 +280,70 @@ public class GerberX2FileWriter {
             return 2;
         }
         this.graphics.close();
+        this.graphics = null;
         this.out.write("M02*\n".getBytes());
         this.step = 2;
         return 0;
+    }
+
+    private void debug() {
+        this.rowCount++;
+        if (this.debugger != null && this.debugger.breakLine == this.rowCount) {
+            this.debugger.reached();
+        }
+    }
+
+    /**
+     * The output stream adapter.
+     *
+     * @author Kyle K. Lin
+     *
+     */
+    class OutputStreamExt extends OutputStream {
+
+        private final OutputStream out;
+
+        OutputStreamExt(OutputStream out) {
+            this.out = out;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            this.out.write(b);
+            if (b == '\n') {
+                debug();
+            }
+        }
+
+        @Override
+        public void write(byte b[]) throws IOException {
+            for (byte _b : b) {
+                if (_b == '\n') {
+                    debug();
+                }
+            }
+            this.out.write(b, 0, b.length);
+        }
+
+        @Override
+        public void write(byte b[], int off, int len) throws IOException {
+            for (int x = off; x < off + len; x++) {
+                if (b[x] == '\n') {
+                    debug();
+                }
+            }
+            this.out.write(b, off, len);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            this.out.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            this.out.close();
+        }
+
     }
 }

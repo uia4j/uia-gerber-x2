@@ -6,17 +6,17 @@ import java.io.OutputStream;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * G04
+ * LN(Layer Name)
  *
  * @author Kyle K. Lin
  *
  */
-public class G04Comment implements GerberX2Statement {
+public class LN implements GerberX2Statement {
 
-    private final String comment;
+    private final String name;
 
-    public G04Comment(String comment) {
-        this.comment = comment;
+    public LN(String name) {
+        this.name = name;
     }
 
     @Override
@@ -24,12 +24,12 @@ public class G04Comment implements GerberX2Statement {
         return "G04";
     }
 
-    public String getComment() {
-        return this.comment;
+    public String getName() {
+        return this.name;
     }
 
     @Override
     public void write(OutputStream out) throws IOException {
-        out.write(String.format("G04%s*\n", this.comment == null ? "" : this.comment).getBytes());
+        out.write(String.format("%%LN%s*%%\n", this.name == null ? "" : this.name).getBytes());
     }
 }

@@ -3,7 +3,7 @@ package uia.gerber.x2;
 import java.math.BigDecimal;
 
 /**
- * The value converter for X/Y coordination.
+ * The value converter for X/Y coordination based on format specification.
  *
  * @author Kyle K. Lin
  *
@@ -40,8 +40,26 @@ public class Valuer {
         this.scale = (int) Math.pow(10, decDigi % 10);
     }
 
-    public int digi() {
+    public int coordDigits() {
         return this.intDigi * 10 + this.decDigi;
+    }
+
+    /**
+     * Returns precision for integer.
+     *
+     * @return precision for integer.
+     */
+    public int intDigi() {
+        return this.intDigi;
+    }
+
+    /**
+     * Returns precision for decimal.
+     *
+     * @return precision for decimal.
+     */
+    public int decDigi() {
+        return this.decDigi;
     }
 
     /**

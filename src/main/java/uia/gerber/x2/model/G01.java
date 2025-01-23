@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * G01
+ * G01(Linear Plotting) sets linear plot mode.
  *
  * @author Kyle K. Lin
  *

@@ -90,8 +90,10 @@ public class StepRepeatGraphics implements GerberX2Graphics {
 
     @Override
     public void close() throws IOException {
-        this.x2g.close();
-        this.x2g = null;
+        if (this.x2g != null) {
+            this.x2g.close();
+            this.x2g = null;
+        }
 
         this.writer.getOutputStream().write("%SR*%\n".getBytes());
         this.writer = null;

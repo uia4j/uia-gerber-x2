@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.Token;
 import uia.gerber.x2.TokenUtils;
 
 /**
- * D01
+ * D01 creates a straight-line segment or a circular segment by plotting from the current point to the operation coordinates.
  *
  * @author Kyle K. Lin
  *
@@ -28,26 +28,59 @@ public class D01Plot implements IOp {
     public D01Plot() {
     }
 
-    public D01Plot(Long x, Long y) {
-        this.x = x;
-        this.y = y;
+    /**
+     * The plotting constructor.
+     *
+     * @param fsX
+     * @param fsY
+     *
+     */
+    public D01Plot(Long fsX, Long fsY) {
+        this.x = fsX;
+        this.y = fsY;
     }
 
-    public D01Plot(Long x, Long y, Long i, Long j) {
-        this.x = x;
-        this.y = y;
-        this.i = i;
-        this.j = j;
+    /**
+     * The plotting constructor.
+     *
+     * @param fsX
+     * @param fsY
+     * @param fsI
+     * @param fsJ
+     */
+    public D01Plot(Long fsX, Long fsY, Long fsI, Long fsJ) {
+        this.x = fsX;
+        this.y = fsY;
+        this.i = fsI;
+        this.j = fsJ;
     }
 
-    public D01Plot(String g, Long x, Long y, Long i, Long j) {
+    /**
+     * The plotting constructor.
+     *
+     * @param g
+     * @param x
+     * @param y
+     * @param i
+     * @param j
+     */
+    public D01Plot(String g, Long fsX, Long fsY, Long fsI, Long fsJ) {
         this.g = g;
-        this.x = x;
-        this.y = y;
-        this.i = i;
-        this.j = j;
+        this.x = fsX;
+        this.y = fsY;
+        this.i = fsI;
+        this.j = fsJ;
     }
 
+    /**
+     * The plotting constructor.
+     *
+     * @param g
+     * @param x
+     * @param y
+     * @param i
+     * @param j
+     */
     public D01Plot(Token g, Token x, Token y, Token i, Token j) {
         this.g = g == null ? null : g.getText();
         this.x = x == null ? null : TokenUtils.parseLong(x);

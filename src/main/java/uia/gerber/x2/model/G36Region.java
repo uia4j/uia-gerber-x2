@@ -9,7 +9,7 @@ import java.util.List;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * G36
+ * G36 turns on the outline fill.
  *
  * @author Kyle K. Lin
  *
@@ -56,29 +56,66 @@ public class G36Region implements GerberX2Statement {
         out.write("G37*\n".getBytes());
     }
 
+    /**
+     * 輪廓
+     *
+     * @author Kyle K. Lin
+     *
+     */
     public static class Contour implements GerberX2Statement {
+
+        /**
+         * 直線
+         */
+        public static final String G01 = "G01";
+
+        /**
+         * 順時針
+         */
+        public static final String G02 = "G02";
+
+        /**
+         * 逆時針
+         */
+        public static final String G03 = "G03";
 
         public final String g;
 
-        public final D01Plot d;
+        public final D01Plot d1;
+
+        public final D03Flash d3;
 
         public Contour(String g) {
             this.g = g;
-            this.d = null;
+            this.d1 = null;
+            this.d3 = null;
         }
 
-        public Contour(D01Plot d) {
+        public Contour(D01Plot d1) {
             this.g = null;
-            this.d = d;
+            this.d1 = d1;
+            this.d3 = null;
+        }
+
+        public Contour(D03Flash d3) {
+            this.g = null;
+            this.d1 = null;
+            this.d3 = d3;
         }
 
         @Override
         public String getCmd() {
             if (this.g == null) {
-                return this.d.getCmd();
+                return this.d1 != null ? this.d1.getCmd() : this.d3.getCmd();
+            }
+            else if (this.d1 != null) {
+                return this.g + this.d1.getCmd();
+            }
+            else if (this.d3 != null) {
+                return this.g + this.d3.getCmd();
             }
             else {
-                return this.d != null ? this.g + this.d.getCmd() : this.g;
+                return this.g;
             }
         }
 
@@ -87,8 +124,11 @@ public class G36Region implements GerberX2Statement {
             if (this.g != null) {
                 out.write((this.g + "*\n").getBytes());
             }
+            else if (this.d1 != null) {
+                this.d1.write(out);
+            }
             else {
-                this.d.write(out);
+                this.d3.write(out);
             }
         }
     }

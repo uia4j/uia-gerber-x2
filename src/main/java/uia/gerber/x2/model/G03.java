@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * G03
+ * G03(Circular Plotting) sets counterclockwise circular plot mode.
  *
  * @author Kyle K. Lin
  *
