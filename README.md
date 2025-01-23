@@ -28,10 +28,9 @@ The project uses the ANTLR plugin to generate java files automatically, you need
 
     ```java
     // create a writer.
-    GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-
-    // set file comment.
-    writer.setDescription("TEST1 - Region");
+    GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+            .fs(4, 6)
+            .description("TEST1 - Region");
 
     // start to write (streaming)
     writer.start();
@@ -40,22 +39,24 @@ The project uses the ANTLR plugin to generate java files automatically, you need
     CommonGraphics x2g = writer.getGraphics();
 
     // create a region at (0.1mm, 0.1mm)
-    x2g.createRegion(writer.x(0.1), writer.y(0.1)) 
-            .lineTo(writer.x(0.1), writer.y(0.5))   
-            .lineTo(writer.x(0.4), null)
-            .cwTo(writer.x(0.5), writer.y(0.4), null, writer.y(-0.1))
-            .lineTo(writer.x(0.5), writer.y(0.1))
-            .lineTo(writer.x(0.1), null);
+    x2g.createRegion(writer.xy(0.1), writer.y(0.1)) 
+            .lineTo(writer.xy(0.1), writer.xy(0.5))   
+            .lineTo(writer.xy(0.4), null)
+            .cwTo(writer.xy(0.5), writer.xy(0.4), null, writer.xy(-0.1))
+            .lineTo(writer.xy(0.5), writer.xy(0.1))
+            .lineTo(writer.xy(0.1), null)
+            .close();
 
     // change the polarity
     x2g.loadPolarity(false);
 
     // create a region  at (0.3mm, 0.3mm)
-    x2g.createRegion(writer.x(0.3), writer.y(0.3))
-            .lineTo(null, writer.y(0.4))
-            .lineTo(writer.x(0.4), null)
-            .lineTo(writer.x(0.4), writer.y(0.3))
-            .lineTo(writer.x(0.3), null);
+    x2g.createRegion(writer.xy(0.3), writer.xy(0.3))
+            .lineTo(null, writer.xy(0.4))
+            .lineTo(writer.xy(0.4), null)
+            .lineTo(writer.xy(0.4), writer.xy(0.3))
+            .lineTo(writer.xy(0.3), null)
+            .close();
 
     // stop writing.
     writer.stop();
@@ -64,9 +65,8 @@ The project uses the ANTLR plugin to generate java files automatically, you need
 3. Write text
     ```java
     // create a writer.
-    GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
-    writer.setXValuer(2, 6);
-    writer.setYValuer(2, 6);
+    GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+            .fs(4, 6);
 
     // start to write (streaming)
     writer.start();
@@ -76,7 +76,7 @@ The project uses the ANTLR plugin to generate java files automatically, you need
 
     // create a text graphics
     TextGraphics tg = g.createText();
-    tg.text("Demo Info", writer.x(0.4), writer.y(0.4), 100);
+    tg.text("Demo Info", writer.xy(0.4), writer.xy(0.4), writer.xy(30), writer.xy(4));
 
     // stop writing.
     writer.stop();
