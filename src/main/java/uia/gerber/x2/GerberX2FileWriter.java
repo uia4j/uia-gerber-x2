@@ -265,21 +265,12 @@ public class GerberX2FileWriter {
     }
 
     /**
-     * Returns the graphics object.
-     *
-     * @return The graphics object.
-     */
-    public CommonGraphics getGraphics() {
-        return this.graphics;
-    }
-
-    /**
-     * Stops the writer.
+     * Closes the writer.
      *
      * @return 0: passed, 1: not started, 2: closed.
      * @throws IOException
      */
-    public int stop() throws IOException {
+    public int close() throws IOException {
         if (this.step == 0) {
             return 1;
         }
@@ -291,6 +282,15 @@ public class GerberX2FileWriter {
         this.out.write("M02*\n".getBytes());
         this.step = 2;
         return 0;
+    }
+
+    /**
+     * Returns the graphics object.
+     *
+     * @return The graphics object.
+     */
+    public CommonGraphics getGraphics() {
+        return this.graphics;
     }
 
     private void debug() {

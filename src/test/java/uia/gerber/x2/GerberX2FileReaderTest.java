@@ -6,6 +6,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
+import uia.gerber.x2.GerberX2FileReader;
+import uia.gerber.x2.GerberX2Statement;
+import uia.gerber.x2.GerberX2Visitor;
 import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.G36Region.Contour;
 

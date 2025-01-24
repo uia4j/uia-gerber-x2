@@ -1,5 +1,7 @@
 package uia.gerber.x2;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -11,7 +13,7 @@ public class GerberX2FileWriterTest {
 
     @Test
     public void test1() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber1.gbr"), false))
                 .fs(4, 6)
                 .description("TEST1 - Region");
 
@@ -37,12 +39,12 @@ public class GerberX2FileWriterTest {
                 .lineTo(writer.xy(0.4), writer.xy(0.4))
                 .close();
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test2() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber2.gbr"), false))
                 .fs(2, 6)
                 .description("TEST2 - AB");
 
@@ -86,12 +88,12 @@ public class GerberX2FileWriterTest {
                 .flash(writer.xy(0), writer.xy(1))
                 .flash(writer.xy(1), writer.xy(1));
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test3() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber3.gbr"), false))
                 .fs(2, 6)
                 .description("TEST3 - AD");
 
@@ -115,13 +117,13 @@ public class GerberX2FileWriterTest {
         cg.loadPolarity(false);
         cg.dnn(14).flash(writer.xy(10), writer.xy(10));
 
-        writer.stop();
+        writer.close();
 
     }
 
     @Test
     public void test4() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber4.gbr"), false))
                 .fs(2, 6)
                 .description("TEST4 - AB without Region");
 
@@ -152,13 +154,13 @@ public class GerberX2FileWriterTest {
                 .flash(writer.xy(0), writer.xy(0))
                 .flash(writer.xy(15), writer.xy(15));
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test5() throws IOException {
         // rectangle #1, using aperture
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber5.gbr"), false))
                 .fs(2, 6)
                 .description("TEST5 - Rectangle using AD");
 
@@ -181,14 +183,14 @@ public class GerberX2FileWriterTest {
 
         cg.dnn(170).flash(writer.xy(0), writer.xy(0));
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test6() throws IOException {
         // rectangle #2, using region
         int scale = 1000;
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber6.gbr"), false))
                 .fs(2, 6)
                 .description("TEST6 - Rectangle using Region");
 
@@ -224,13 +226,13 @@ public class GerberX2FileWriterTest {
                 .flash(writer.xy(2), writer.xy(0))
                 .flash(writer.xy(0), writer.xy(2));
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test7() throws IOException {
         int scale = 1000;
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber7.gbr"), false))
                 .fs(2, 6)
                 .description("TEST7 - Special");
 
@@ -281,12 +283,12 @@ public class GerberX2FileWriterTest {
                 .flash(writer.xy(2), writer.xy(2))
                 .flash(writer.xy(0), writer.xy(2));
 
-        writer.stop();
+        writer.close();
     }
 
     @Test
     public void test8() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber8.gbr"), false))
                 .fs(2, 6)
                 .description("TEST8");
 
@@ -298,6 +300,23 @@ public class GerberX2FileWriterTest {
                 .rect(writer.xy(-10), writer.xy(-30), writer.xy(20), writer.xy(50))
                 .close();
 
-        writer.stop();
+        writer.close();
+    }
+
+    @Test
+    public void test9() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber9.gbr"), false))
+                .fs(2, 6)
+                .description("TEST9 - Text");
+
+        writer.start();
+
+        writer.getGraphics()
+                .createText("Arial")
+                .text("ABCDEFG", writer.xy(0), writer.xy(10), writer.xy(100), writer.xy(10))
+                .text("1234567890!@#$%^&*()_+", writer.xy(0), writer.xy(0), writer.xy(1000), writer.xy(10))
+                .close();
+
+        writer.close();
     }
 }

@@ -11,6 +11,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import uia.gerber.x2.GerberX2BaseListener;
+import uia.gerber.x2.GerberX2Lexer;
+import uia.gerber.x2.GerberX2Parser;
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.AD;
 import uia.gerber.x2.model.ATTR;

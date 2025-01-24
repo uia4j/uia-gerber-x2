@@ -7,13 +7,13 @@ The implementation of this API is based on __Gerber Layer Format Specification -
 
 * __Gerber Layout File__ - All commands except `AM` could be written and read.
 
-* __Gerber Job File__ - under development.
+* __Text__ - `Arial` and `Dialog` under testing.
 
-* __Text__ - Font `Arial` under testing.
+* __GerberX2FileReader__ - Redesign using streaming pattern.
 
 ## Build
 
-The project uses the ANTLR plugin to generate java files automatically, you need to add `target/generated-sources/antlr4` in IDE __build path list__ before building the source code.  
+The project uses the ANTLR V4 plugin to generate java files automatically, you need to add `target/generated-sources/antlr4` in IDE __build path list__ before building the source code.  
 
 ## Examples
 
@@ -58,8 +58,8 @@ The project uses the ANTLR plugin to generate java files automatically, you need
             .lineTo(writer.xy(0.3), null)
             .close();
 
-    // stop writing.
-    writer.stop();
+    // end writing.
+    writer.close();
     ```
 
 3. Write text
@@ -71,18 +71,102 @@ The project uses the ANTLR plugin to generate java files automatically, you need
     // start to write (streaming)
     writer.start();
 
-    // get the graphics object.
-    CommonGraphics x2g = writer.getGraphics();
+    // create a text graphics and draw 
+    writer.getGraphics()
+            .createText("Arial")
+            .text("ABCDEFG", writer.xy(0), writer.xy(10), writer.xy(100), writer.xy(10))
+            .text("1234567890!@#$%^&*()_+", writer.xy(0), writer.xy(0), writer.xy(1000), writer.xy(10))
+            .close();
 
-    // create a text graphics
-    TextGraphics tg = g.createText();
-    tg.text("Demo Info", writer.xy(0.4), writer.xy(0.4), writer.xy(30), writer.xy(4));
-
-    // stop writing.
-    writer.stop();
+    // end writing.
+    writer.close();
     ```
 
     ![Sample](sample1.png)
+
+## Writer API
+
+The value of coordination needs to meet the FS(Format Specification). `GerberX2FileWriter` provides a method `xy` to convert the value from mm/inch to FS format. 
+
+For example, move the cursor to new position xy(10.2mm, 5.61mm)
+
+```java
+double mmX = 10.2;
+double mmY = 5.61;
+
+GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        .fs(4, 6)                       // intDigits = 4, decimalDigits = 6
+        .unit(UnitType.MM);             // unit = mm
+writer.start();
+writer.getGraphics()
+        .move(writer.xy(mmX), writer.xy(mmY));  // use xy() to convert mm to FS  format
+writer.close();
+```
+
+* writer.xy(mmX) - convert 10.2(mm) to 10200000(FS)
+* writer.xy(mmY) - convert 5.61(mm) to 5610000(FS)
+
+
+### Workflow
+
+1. create a writer
+   ```java
+   GerberX2FileWriter writer = new GerberX2FileWriter(System.out);
+   ```
+
+2. start writing 
+   ```java
+   writer.start();
+   ```
+
+3. Get the graphics
+   ```java
+   CommonGraphics cg = writer.getGraphics();
+   ```
+
+4. Define some ADs(Aperture Definition)
+   ```java
+   cg.defineCircle(11, BigDecimal.valueOf(1.2));
+   cg.defineRectangle(12, new BigDecimal(10), new BigDecimal(20));
+   cg.defineSquare(13, BigDecimal.valueOf(15.7));
+   ```
+
+5. Define a block
+   ```java
+   BlockDefineGraphics bg = writer.getGraphics().defineBlock(21);
+   // draw something
+   bg.close();
+   ```
+
+6. Use AD 11 
+   ```java
+   cg.dnn(11);
+   ```
+
+7. Move to xy(3, 4) and draw a line to xy(20, 19)
+   ```java
+   cg.move(writer.xy(3), writer.xy(4));
+   cg.lineTo(writer.xy(20), writer.xy(19));
+   ```
+
+8. Create a region graphics at xy(-20, -40)
+   ```java
+   RegionGraphics rg = cg.createRegion(writer.xy(-20), writer.xy(-40));
+   // draw something
+   rg.close();
+   ```
+
+9. Create a text graphics using 'Arial'
+   ```java
+   TextGraphics tg = cg.createText("Arial");
+   // draw something
+   tg.close();
+   ```
+
+10. End writing
+    ```java
+    writer.close();
+    ```
 
 
 ## References

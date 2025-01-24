@@ -122,10 +122,10 @@ LR      :   'LR';
 LS      :   'LS';
 AB		:	'AB'; 
 SR		:	'SR';
-TF		:   'TF' CH (CH | ('0'..'9'))*;
-TA		:   'TA' CH (CH | ('0'..'9'))*;
-TO		:   'TO' CH (CH | ('0'..'9'))*;
-TD		:   'TD' CH (CH | ('0'..'9'))*;
+TF		:   'TF' CH (CH | DIGIT)*;
+TA		:   'TA' CH (CH | DIGIT)*;
+TO		:   'TO' CH (CH | DIGIT)*;
+TD		:   'TD' CH (CH | DIGIT)*;
 
 M02     :   'M02';
 
@@ -134,4 +134,4 @@ WS		: 	('\t' | '\u000C' | '\r' | '\n')+ -> channel(HIDDEN);
 fragment
 
 DIGIT   :	'0'..'9';
-CH		:	[._a-zA-Z$];
+CH		:	[._a-zA-Z$:+];

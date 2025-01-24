@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import uia.gerber.x2.TextCreator;
+
 public class TextCreatorTest {
 
     private static final Font FONT = new Font("Dialog", Font.BOLD, 140);

@@ -25,7 +25,6 @@ public class CmdParser {
         char c2 = cmd.charAt(2);
         switch (c0) {
             case 'A':
-
                 break;
             case 'D':
                 break;
@@ -36,7 +35,6 @@ public class CmdParser {
             case 'L':
                 break;
             case 'M':
-
                 break;
             case 'S':
                 break;
