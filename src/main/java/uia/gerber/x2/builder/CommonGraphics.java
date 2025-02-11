@@ -15,7 +15,6 @@ import uia.gerber.x2.model.Dnn;
 import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G02;
 import uia.gerber.x2.model.G03;
-import uia.gerber.x2.model.G36Region.Contour;
 import uia.gerber.x2.model.LP;
 
 /**
@@ -278,7 +277,7 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics lineToH(Long fsX) throws IOException {
         if (this.lastState != 1) {
-            new Contour(Contour.G01).write(this.out);
+            new G01().write(this.out);
         }
         new D01Plot(fsX, null).write(this.out);
         this.lastX = fsX;
@@ -294,7 +293,7 @@ public class CommonGraphics implements GerberX2Graphics {
     */
     public CommonGraphics lineToV(Long fsY) throws IOException {
         if (this.lastState != 1) {
-            new Contour(Contour.G01).write(this.out);
+            new G01().write(this.out);
         }
         new D01Plot(null, fsY).write(this.out);
         this.lastY = fsY;

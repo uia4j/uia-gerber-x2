@@ -10,6 +10,21 @@ import java.io.IOException;
  */
 public interface GerberX2Graphics {
 
+    /**
+     * 直線
+     */
+    public static final String G01 = "G01";
+
+    /**
+     * 順時針
+     */
+    public static final String G02 = "G02";
+
+    /**
+     * 逆時針
+     */
+    public static final String G03 = "G03";
+
     public int lastState();
 
     /**

@@ -1,131 +1,131 @@
 package uia.gerber.x2;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import uia.gerber.x2.GerberX2FileReader;
-import uia.gerber.x2.GerberX2Statement;
-import uia.gerber.x2.GerberX2Visitor;
+import uia.gerber.x2.model.AB;
+import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.G36Region;
-import uia.gerber.x2.model.G36Region.Contour;
+import uia.gerber.x2.model.IAD;
 
-public class GerberX2FileReaderTest {
-
-    @Test
-    public void testVisitor() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor() {
-
-            @Override
-            public void stat(GerberX2Statement stmt) {
-                System.out.println(stmt.getCmd() + " attrs=" + stmt.getAttributes());
-            }
-
-            @Override
-            public void cmd(String stmt) {
-            }
-
-            @Override
-            public void extCmd(String stmt) {
-            }
-
-            @Override
-            public void error(String stmt) {
-                System.out.println("error - " + stmt);
-            }
-        });
-        reader.run(Paths.get("D:/workspace/htks/air/01.req/PLP/v1/gbrs/FL1.gbr"));
-    }
+public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
 
     @Test
     public void test() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("D:/workspace/htks/air/01.req/PLP/v1/gbrs/FL1.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/plp/FU.gbr");
+    }
+
+    @Test
+    public void test0() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber0.gbr");
     }
 
     @Test
     public void test1() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/gerber1.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber1.gbr");
     }
 
     @Test
     public void test2() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/gerber2.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber2.gbr");
     }
 
     @Test
     public void test3() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/gerber3.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber3.gbr");
     }
 
     @Test
     public void test4() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/gerber4.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber4.gbr");
     }
 
     @Test
     public void test5() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/gerber5.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber5.gbr");
     }
 
     @Test
     public void test6() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor() {
-
-            @Override
-            public void stat(GerberX2Statement stmt) {
-                try {
-                    if (stmt instanceof G36Region) {
-                        G36Region g36 = (G36Region) stmt;
-                        Contour c = g36.contours.get(1);
-                        long x = c.d1.getX();
-                        long y = c.d1.getY();
-                        long i = c.d1.getI();
-                        long j = c.d1.getJ();
-                        System.out.printf("X%06dY%06d\n",
-                                new BigDecimal((x - i) / 100.0).setScale(0, BigDecimal.ROUND_HALF_UP).intValue(),
-                                new BigDecimal((y - j) / 100.0).setScale(0, BigDecimal.ROUND_HALF_UP).intValue());
-
-                    }
-                }
-                catch (Exception ex) {
-                    System.out.println(stmt.getCmd() + " failed");
-                    ex.printStackTrace();
-                }
-            }
-
-            @Override
-            public void cmd(String stmt) {
-            }
-
-            @Override
-            public void extCmd(String stmt) {
-            }
-
-            @Override
-            public void error(String stmt) {
-            }
-
-        });
-        reader.run(Paths.get("samples/gerber6.gbr"));
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber6.gbr");
     }
 
     @Test
-    public void testSpecial1() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(null);
-        reader.run(Paths.get("samples/special/P24617000001-A_UBMExposure.gbr"));
+    public void test7() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber7.gbr");
     }
 
     @Test
-    public void testSpecial2() throws IOException {
-        GerberX2FileReader reader = new GerberX2FileReader(new GerberX2Visitor.Console());
-        reader.run(Paths.get("samples/special/Q5_LD2.gbr"));
+    public void test8() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber8.gbr");
+    }
+
+    @Test
+    public void test9() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerber9.gbr");
+    }
+
+    @Override
+    public void enter(int seqNo, GerberX2Statement stmt) {
+    }
+
+    @Override
+    public void unknown(int seqNo, String cmd) {
+        System.out.println(seqNo + " unk, " + cmd);
+    }
+
+    @Override
+    public void error(int seqNo, String cmd) {
+        System.out.println(seqNo + " err, " + cmd);
+    }
+
+    @Override
+    public void apertureDefined(IAD stmt) {
+        System.out.println("== " + stmt.getDnn() + " ==");
+    }
+
+    @Override
+    public void enterG36() {
+    }
+
+    @Override
+    public void exitG36(G36Region g36Region) {
+        out(g36Region);
+    }
+
+    @Override
+    public void enterAB(AB ab) {
+    }
+
+    @Override
+    public void exitAB(ABBlock block) {
+        out(block);
+    }
+
+    @Override
+    public void beforeEnd() {
+        System.out.println("== EOF ==");
+    }
+
+    private void out(GerberX2Statement stmt) {
+        try {
+            stmt.write(System.out);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
     }
 }

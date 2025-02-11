@@ -105,7 +105,7 @@ import uia.gerber.x2.font.dialog.D110n;
  * @author Kyle K. Lin
  *
  */
-public class Dialog implements GFont {
+public class Dialog extends GFont {
 
     private static final ASCII[] ascii = new ASCII[128];
 
@@ -209,7 +209,7 @@ public class Dialog implements GFont {
 
     @Override
     public ASCII ch(char ch) {
-        return ascii[(byte) ch];
+        return ascii[(byte) ch].font(this);
     }
 
     @Override
@@ -219,5 +219,15 @@ public class Dialog implements GFont {
             result.add(ch(ch));
         }
         return result;
+    }
+
+    @Override
+    public int getHeight() {
+        return 177;
+    }
+
+    @Override
+    public int getDescent() {
+        return 31;
     }
 }

@@ -1,6 +1,8 @@
 package uia.gerber.x2.font.arial;
 
-public final class D126 extends D {
+import uia.gerber.x2.font.ASCII;
+
+public final class D126 extends ASCII {
 
     private static final int[][] paths;
 

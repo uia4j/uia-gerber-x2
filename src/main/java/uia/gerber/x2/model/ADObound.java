@@ -27,7 +27,7 @@ public class ADObound extends AD {
      * @param holeDiameter The hole diameter.
      */
     public ADObound(int no, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) {
-        super(no, "D");
+        super(no, "O");
         if (no < 10 || no > 999) {
             throw new IllegalArgumentException("number out of range [10..999]");
         }

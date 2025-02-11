@@ -45,4 +45,32 @@ public interface GerberX2Statement {
      * @throws IOException Failed to write data to the output stream.
      */
     public void write(OutputStream out) throws IOException;
+
+    public static class UNK implements GerberX2Statement {
+
+        private final String line;
+
+        private final boolean ext;
+
+        public UNK(String line, boolean ext) {
+            this.line = line;
+            this.ext = ext;
+        }
+
+        @Override
+        public String getCmd() {
+            return this.line;
+        }
+
+        @Override
+        public void write(OutputStream out) throws IOException {
+            if (ext) {
+                out.write(("%" + this.line + "*%\n").getBytes());
+            }
+            else {
+                out.write((this.line + "*\n").getBytes());
+            }
+        }
+
+    }
 }

@@ -9,7 +9,7 @@ import uia.gerber.x2.TextCreator;
 
 public class TextCreatorTest {
 
-    private static final Font FONT = new Font("Dialog", Font.BOLD, 140);
+    private static final Font FONT = new Font("Arial", Font.BOLD, 140);
 
     private static final char ch = '3';
 

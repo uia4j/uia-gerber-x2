@@ -60,4 +60,8 @@
 			</plugin>
 		</plugins>
 	</build>
+	<scm>
+		<url>https://github.com/uia4j/uia-gerber-x2</url>
+		<developerConnection>Kyle K. Lin</developerConnection>
+	</scm>
 </project>

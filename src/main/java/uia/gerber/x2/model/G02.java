@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * @author Kyle K. Lin
  *
  */
-public class G02 implements IState {
+public class G02 implements IState, IG36Stmt {
 
     @Override
     public String getCmd() {

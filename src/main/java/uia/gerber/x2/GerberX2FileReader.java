@@ -2,20 +2,14 @@ package uia.gerber.x2;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-
-import uia.gerber.x2.GerberX2BaseListener;
-import uia.gerber.x2.GerberX2Lexer;
-import uia.gerber.x2.GerberX2Parser;
 import uia.gerber.x2.model.AB;
-import uia.gerber.x2.model.AD;
+import uia.gerber.x2.model.ABBlock;
+import uia.gerber.x2.model.ADCircle;
+import uia.gerber.x2.model.ADObound;
+import uia.gerber.x2.model.ADRectangle;
 import uia.gerber.x2.model.ATTR;
 import uia.gerber.x2.model.D01Plot;
 import uia.gerber.x2.model.D02Move;
@@ -26,316 +20,343 @@ import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G02;
 import uia.gerber.x2.model.G03;
 import uia.gerber.x2.model.G04Comment;
+import uia.gerber.x2.model.G36;
 import uia.gerber.x2.model.G36Region;
-import uia.gerber.x2.model.G36Region.Contour;
+import uia.gerber.x2.model.G37;
 import uia.gerber.x2.model.G75;
-import uia.gerber.x2.model.LM;
+import uia.gerber.x2.model.IAD;
+import uia.gerber.x2.model.LN;
 import uia.gerber.x2.model.LP;
-import uia.gerber.x2.model.LR;
-import uia.gerber.x2.model.LS;
+import uia.gerber.x2.model.M02;
 import uia.gerber.x2.model.MO;
-import uia.gerber.x2.model.SR;
+import uia.gerber.x2.model.MO.UnitType;
 
-/**
- * The Gerber X2 layout file reader.
- *
- * @author Kyle K. Lin
- *
- */
 public class GerberX2FileReader {
 
-    private MO mo;
+    private int seq;
 
-    private FS fs;
+    private GerberX2FileReaderListener listener;
 
-    private boolean inRegion;
+    private ABBlock ab;
 
-    private G36Region currRegion;
+    private G36Region g36;
 
-    private SR currStepRepeat;
-
-    private List<AB> blocks;
-
-    private List<ATTR> attrs;
-
-    private GerberX2Visitor visitor;
+    private G36Region.Contour contour;
 
     public GerberX2FileReader() {
-        this.blocks = new ArrayList<>();
-        this.attrs = new ArrayList<>();
+        this.listener = new GerberX2FileReaderListener() {
+
+            @Override
+            public void enter(int seqNo, GerberX2Statement stmt) {
+            }
+
+            @Override
+            public void unknown(int seqNo, String cmd) {
+            }
+
+            @Override
+            public void error(int seqNo, String cmd) {
+            }
+
+            @Override
+            public void apertureDefined(IAD stmt) {
+            }
+
+            @Override
+            public void enterAB(AB ab) {
+            }
+
+            @Override
+            public void exitAB(ABBlock blcok) {
+            }
+
+            @Override
+            public void enterG36() {
+            }
+
+            @Override
+            public void exitG36(G36Region g36Region) {
+            }
+
+            @Override
+            public void beforeEnd() {
+            }
+
+        };
     }
 
-    public GerberX2FileReader(GerberX2Visitor visitor) {
-        this.visitor = visitor;
-        this.blocks = new ArrayList<>();
-        this.attrs = new ArrayList<>();
+    public GerberX2FileReader(GerberX2FileReaderListener listener) {
+        this.listener = listener;
     }
 
-    public void run(Path path) throws IOException {
-        this.mo = null;
-        this.fs = null;
-        this.inRegion = false;
-        this.currRegion = null;
-        this.currStepRepeat = null;
-        this.blocks.clear();
-
-        final GerberX2Lexer lexer = new GerberX2Lexer(CharStreams.fromPath(path));
-        final GerberX2Parser parser = new GerberX2Parser(new CommonTokenStream(lexer));
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new GerberX2BaseListener() {
-
-            @Override
-            public void enterMo(GerberX2Parser.MoContext ctx) {
-                GerberX2FileReader.this.mo = new MO(MO.UnitType.valueOf(ctx.unit.getText()));
-                acceptStmt(GerberX2FileReader.this.mo);
-            }
-
-            @Override
-            public void enterFs(GerberX2Parser.FsContext ctx) {
-                // Format Specification (FS)
-                // The digits for X and for Y must be the same. The current syntax is for compatibility with previous format versions.
-                GerberX2FileReader.this.fs = new FS(new Valuer(ctx.x.getText()));
-                acceptStmt(GerberX2FileReader.this.fs);
-            }
-
-            @Override
-            public void enterG36(GerberX2Parser.G36Context ctx) {
-                GerberX2FileReader.this.inRegion = true;
-            }
-
-            @Override
-            public void exitG36(GerberX2Parser.G36Context ctx) {
-                acceptStmt(GerberX2FileReader.this.currRegion);
-                GerberX2FileReader.this.inRegion = false;
-                GerberX2FileReader.this.currRegion = null;
-            }
-
-            @Override
-            public void enterG36Region(GerberX2Parser.G36RegionContext ctx) {
-            }
-
-            @Override
-            public void enterG01(GerberX2Parser.G01Context ctx) {
-                String g = ctx.getText();
-                if (GerberX2FileReader.this.inRegion) {
-                    GerberX2FileReader.this.currRegion.contours.add(new G36Region.Contour(g));
-                }
-                else {
-                    acceptStmt(new G01());
-                }
-            }
-
-            @Override
-            public void enterG02(GerberX2Parser.G02Context ctx) {
-                String g = ctx.getText();
-                if (GerberX2FileReader.this.inRegion) {
-                    GerberX2FileReader.this.currRegion.contours.add(new G36Region.Contour(g));
-                }
-                else {
-                    acceptStmt(new G02());
-                }
-            }
-
-            @Override
-            public void enterG03(GerberX2Parser.G03Context ctx) {
-                String g = ctx.getText();
-                if (GerberX2FileReader.this.inRegion) {
-                    GerberX2FileReader.this.currRegion.contours.add(new G36Region.Contour(g));
-                }
-                else {
-                    acceptStmt(new G03());
-                }
-            }
-
-            @Override
-            public void enterG04(GerberX2Parser.G04Context ctx) {
-                acceptStmt(new G04Comment(ctx.comment.getText()));
-            }
-
-            @Override
-            public void enterG75(GerberX2Parser.G75Context ctx) {
-                acceptStmt(new G75());
-            }
-
-            @Override
-            public void enterAd(GerberX2Parser.AdContext ctx) {
-                AD ad = new AD();
-                ad.setAttributes(GerberX2FileReader.this.attrs);
-                ad.setDnn(ctx.d.getText());
-                ad.setTemplate(ctx.template.getText());
-                String[] xs = ctx.getText().split(",")[1].split("X");
-                for (String x : xs) {
-                    ad.getXs().add(new BigDecimal(x));
-                }
-                GerberX2FileReader.this.attrs.clear();
-                acceptStmt(ad);
-            }
-
-            @Override
-            public void enterD01(GerberX2Parser.D01Context ctx) {
-                D01Plot d01 = new D01Plot(ctx.g, ctx.x, ctx.y, ctx.i, ctx.j);
-                if (GerberX2FileReader.this.inRegion) {
-                    GerberX2FileReader.this.currRegion.contours.add(new Contour(d01));
-                }
-                else {
-                    acceptStmt(d01);
-                }
-            }
-
-            @Override
-            public void enterD02(GerberX2Parser.D02Context ctx) {
-                D02Move d02 = new D02Move(ctx.g, ctx.x, ctx.y);
-                if (GerberX2FileReader.this.inRegion) {
-                    GerberX2FileReader.this.currRegion = new G36Region(d02);
-                    GerberX2FileReader.this.currRegion.setAttributes(GerberX2FileReader.this.attrs);
-                    GerberX2FileReader.this.attrs.clear();
-                }
-                else {
-                    acceptStmt(d02);
-                }
-            }
-
-            @Override
-            public void enterD03(GerberX2Parser.D03Context ctx) {
-                acceptStmt(new D03Flash(ctx.x, ctx.y));
-            }
-
-            @Override
-            public void enterDnn(GerberX2Parser.DnnContext ctx) {
-                acceptStmt(new Dnn(ctx.d));
-            }
-
-            @Override
-            public void enterLp(GerberX2Parser.LpContext ctx) {
-                acceptStmt(new LP(ctx.polarity.getText()));
-            }
-
-            @Override
-            public void enterLm(GerberX2Parser.LmContext ctx) {
-                acceptStmt(new LM(LM.MrriorType.valueOf(ctx.mirror.getText())));
-            }
-
-            @Override
-            public void enterLr(GerberX2Parser.LrContext ctx) {
-                acceptStmt(new LR(TokenUtils.parseDecimal(ctx.degree)));
-            }
-
-            @Override
-            public void enterLs(GerberX2Parser.LsContext ctx) {
-                acceptStmt(new LS(TokenUtils.parseDecimal(ctx.scale)));
-            }
-
-            @Override
-            public void visitErrorNode(ErrorNode node) {
-                System.out.println("err> " + node.getText());
-                acceptError(node.toString());
-            }
-
-            @Override
-            public void enterTf(GerberX2Parser.TfContext ctx) {
-                ATTR attr = new ATTR("TF");
-                attr.setName(ctx.t.getText().substring(2));
-                ctx.field().forEach(f -> {
-                    attr.getFields().add(f.getText());
-                });
-                acceptStmt(attr);
-            }
-
-            @Override
-            public void enterTa(GerberX2Parser.TaContext ctx) {
-                ATTR attr = new ATTR("TA");
-                attr.setName(ctx.t.getText().substring(2));
-                ctx.field().forEach(f -> {
-                    attr.getFields().add(f.getText());
-                });
-                GerberX2FileReader.this.attrs.add(attr);
-                // DO NOT call acceptStmt;
-                // acceptStmt(attr);
-            }
-
-            @Override
-            public void enterTo(GerberX2Parser.ToContext ctx) {
-                ATTR attr = new ATTR("TO");
-                attr.setName(ctx.t.getText().substring(2));
-                ctx.field().forEach(f -> {
-                    attr.getFields().add(f.getText());
-                });
-                // DO NOT call acceptStmt;
-                // acceptStmt(attr);
-            }
-
-            @Override
-            public void enterTd(GerberX2Parser.TdContext ctx) {
-                ATTR attr = new ATTR("TD");
-                attr.setName(ctx.t.getText().substring(2));
-                acceptStmt(attr);
-            }
-
-            @Override
-            public void enterSr(GerberX2Parser.SrContext ctx) {
-                if (ctx.x != null) {
-                    GerberX2FileReader.this.currStepRepeat = new SR(ctx.x, ctx.y, ctx.i, ctx.j);
-                }
-                else {
-                    SR curr = GerberX2FileReader.this.currStepRepeat;
-                    GerberX2FileReader.this.currStepRepeat = null;
-                    acceptStmt(curr);
-                }
-            }
-
-            @Override
-            public void enterAb(GerberX2Parser.AbContext ctx) {
-                AB curr = GerberX2FileReader.this.blocks.isEmpty()
-                        ? null
-                        : GerberX2FileReader.this.blocks.get(0);
-
-                if (ctx.d != null) {
-                    AB ab = new AB(ctx.d.getText());
-                    GerberX2FileReader.this.blocks.add(0, ab);
-                    if (curr != null) {
-                        curr.stmts.add(ab);
-                    }
-                }
-                else {
-                    GerberX2FileReader.this.blocks.remove(0);
-                    if (GerberX2FileReader.this.blocks.isEmpty()) {
-                        acceptStmt(curr);
-                    }
-                }
-            }
-
-        }, parser.gerberX2());
-
-        acceptCmd("M02");
+    public void run(String filePath) throws IOException {
+        Files.lines(Paths.get(filePath)).forEach(this::handle);
     }
 
-    private void acceptStmt(GerberX2Statement stmt) {
-        // SR
-        if (this.currStepRepeat != null) {
-            this.currStepRepeat.stmts.add(stmt);
-            return;
+    private void handle(String line) {
+        this.seq++;
+        int len = line.length();
+        if (line.charAt(0) == '%') {
+            if (line.charAt(len - 1) != '%') {
+                this.listener.error(this.seq, line);
+                return;
+            }
+
+            for (String cmd : line.substring(1, len - 1).split("\\*")) {
+                try {
+                    exec(cmd, true);
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
         }
-        // AB
-        if (!this.blocks.isEmpty()) {
-            AB ab = this.blocks.get(0);
-            ab.stmts.add(stmt);
+        else {
+            if (line.charAt(len - 1) != '*') {
+                this.listener.error(this.seq, line);
+                return;
+            }
+
+            try {
+                exec(line.substring(0, len - 1), false);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private void exec(String cmd, boolean ext) throws Exception {
+        if (cmd == null || cmd.isEmpty()) {
             return;
         }
 
-        if (this.visitor != null) {
-            this.visitor.stat(stmt);
+        GerberX2Statement stmt = null;
+        char ch = cmd.charAt(0);
+        String next = null;
+
+        if (ch == 'G') {                                            // G
+            if (cmd.startsWith("G01")) {                            // G01
+                stmt = new G01();
+                if (this.contour != null) {
+                    this.contour.plot((G01) stmt);                  // G36, G01
+                }
+                if (cmd.length() > 3) {
+                    next = cmd.substring(3);
+                }
+            }
+            else if (cmd.startsWith("G02")) {                       // G02
+                stmt = new G02();
+                if (this.contour != null) {
+                    this.contour.plot((G02) stmt);                  // G36, G02
+                }
+                if (cmd.length() > 3) {
+                    next = cmd.substring(3);
+                }
+            }
+            else if (cmd.startsWith("G03")) {                       // G03
+                stmt = new G03();
+                if (this.contour != null) {
+                    this.contour.plot((G03) stmt);                  // G36, G03
+                }
+                if (cmd.length() > 3) {
+                    next = cmd.substring(3);
+                }
+            }
+            else if (cmd.startsWith("G04")) {                       // G04
+                stmt = new G04Comment(cmd.substring(3));
+            }
+            else if (cmd.equals("G36")) {                           // G36
+                stmt = new G36();
+                this.listener.enterG36();
+                this.g36 = new G36Region();
+                this.contour = null;
+            }
+            else if (cmd.equals("G37")) {                           // G37
+                stmt = new G37();
+                this.listener.exitG36(this.g36);
+                this.g36 = null;
+                this.contour = null;
+            }
+            else if (cmd.equals("G75")) {                           // G75
+                stmt = new G75();
+            }
+        }
+        else if (ch == 'D') {                                       // D
+            stmt = new Dnn(Integer.parseInt(cmd.substring(1)), false);
+        }
+        else if (ch == 'L') {                                       // L
+            if (cmd.equals("LPD")) {                                // LPD
+                stmt = new LP(true);
+            }
+            else if (cmd.equals("LPC")) {                           // LPC
+                stmt = new LP(false);
+            }
+            else if (cmd.startsWith("LN")) {                        // LN
+                stmt = new LN(cmd.substring(2));
+            }
+        }
+        else if (ch == 'A') {                                       // A
+            if (cmd.startsWith("AB")) {                             // AB
+                String dxx = cmd.substring(2);
+                stmt = new AB(dxx);
+                if (cmd.length() > 2) {
+                    this.ab = new ABBlock(dxx);
+                    this.listener.apertureDefined((IAD) stmt);
+                    this.listener.enterAB((AB) stmt);
+                }
+                else {
+                    this.listener.exitAB(this.ab);
+                    this.ab = null;
+                }
+            }
+            else if (cmd.startsWith("ADD")) {                       // ADD
+                String[] shapeParam = cmd.split("[,X]");
+                String dxx = shapeParam[0].substring(3, shapeParam[0].length() - 1);
+
+                char sn = shapeParam[0].charAt(shapeParam[0].length() - 1);
+                int nCode = Integer.parseInt(dxx);
+                if (sn == 'C') {
+                    stmt = new ADCircle(
+                            nCode,
+                            new BigDecimal(shapeParam[1]),
+                            shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
+                }
+                else if (sn == 'R') {
+                    stmt = new ADRectangle(
+                            nCode,
+                            new BigDecimal(shapeParam[1]),
+                            new BigDecimal(shapeParam[2]),
+                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                }
+                else if (sn == 'O') {
+                    stmt = new ADObound(
+                            nCode,
+                            new BigDecimal(shapeParam[1]),
+                            new BigDecimal(shapeParam[2]),
+                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                }
+                this.listener.apertureDefined((IAD) stmt);
+            }
+            // TODO:
+        }
+        else if (ch == 'T') {                                       // T
+            ATTR attr = new ATTR(cmd.substring(0, 2));
+            String[] ps = cmd.substring(3).split(",");
+            attr.setName(ps[0]);
+            for (int i = 1; i < ps.length; i++) {
+                attr.getFields().add(ps[i]);
+            }
+            stmt = attr;
+        }
+        else if (cmd.endsWith("D01")) {                             // D01
+            Long[] xyij = dxx(cmd);
+            stmt = new D01Plot(xyij[0], xyij[1], xyij[2], xyij[3]);
+            if (this.contour != null) {
+                this.contour.plot((D01Plot) stmt);                  // G36, D01
+            }
+        }
+        else if (cmd.endsWith("D02")) {                             // D02
+            Long[] xy = dxx(cmd);
+            stmt = new D02Move(xy[0], xy[1]);
+            if (this.g36 != null) {
+                this.contour = this.g36.create((D02Move) stmt);     // G36, D02, create a new contour object.
+            }
+        }
+        else if (cmd.endsWith("D03")) {                             // D03
+            Long[] xy = dxx(cmd);
+            stmt = new D03Flash(xy[0], xy[1]);
+        }
+        else if (cmd.equals("M02")) {                               // M02
+            this.listener.beforeEnd();
+            stmt = new M02();
+        }
+        else if (cmd.startsWith("MO")) {                            // MO
+            stmt = new MO(UnitType.valueOf(cmd.substring(2)));
+        }
+        else if (cmd.startsWith("FS")) {                            // FS
+            Integer[] xy = fs(cmd);
+            stmt = new FS(xy[0], xy[1]);
+        }
+
+        if (stmt == null) {
+            stmt = new GerberX2Statement.UNK(cmd, ext);
+            this.listener.unknown(this.seq, cmd);
+        }
+
+        if (this.ab != null && !(stmt instanceof AB)) {
+            this.ab.stmts.add(stmt);
+        }
+        this.listener.enter(this.seq, stmt);
+
+        if (next != null) {
+            exec(next, ext);
         }
     }
 
-    private void acceptCmd(String stmt) {
-        if (this.visitor != null) {
-            this.visitor.cmd(stmt);
+    private Long[] dxx(String data) {
+        String[] xyij = new String[] {
+                "",
+                "",
+                "",
+                ""
+        };
+        int selected = -1;
+        int d = data.indexOf("D");
+        char[] chs = data.toCharArray();
+        for (int p = 0; p < d; p++) {
+            if (chs[p] == 'X') {
+                selected = 0;
+            }
+            else if (chs[p] == 'Y') {
+                selected = 1;
+            }
+            else if (chs[p] == 'I') {
+                selected = 2;
+            }
+            else if (chs[p] == 'J') {
+                selected = 3;
+            }
+            else {
+                xyij[selected] = (xyij[selected] + chs[p]);
+            }
         }
+
+        Long[] result = new Long[4];
+        for (int p = 0; p < 4; p++) {
+            if (!xyij[p].equals("")) {
+                result[p] = Long.parseLong(xyij[p]);
+            }
+        }
+        return result;
     }
 
-    private void acceptError(String stmt) {
-        if (this.visitor != null) {
-            this.visitor.error(stmt);
+    private Integer[] fs(String data) {
+        String[] xy = new String[] {
+                "",
+                ""
+        };
+        int selected = -1;
+        char[] chs = data.toCharArray();
+        for (int p = 4; p < chs.length; p++) {
+            if (chs[p] == 'X') {
+                selected = 0;
+            }
+            else if (chs[p] == 'Y') {
+                selected = 1;
+            }
+            else {
+                xy[selected] = (xy[selected] + chs[p]);
+            }
         }
+
+        Integer[] result = new Integer[2];
+        for (int p = 0; p < 2; p++) {
+            if (!xy[p].equals("")) {
+                result[p] = Integer.parseInt(xy[p]);
+            }
+        }
+        return result;
     }
 }

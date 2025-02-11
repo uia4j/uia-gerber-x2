@@ -3,13 +3,19 @@ package uia.gerber.x2.model;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import uia.gerber.x2.GerberX2Statement;
+
 /**
  * G01(Linear Plotting) sets linear plot mode.
  *
  * @author Kyle K. Lin
  *
  */
-public class G01 implements IState {
+public class G01 implements IState, IG36Stmt {
+
+    public static GerberX2Statement parse(String cmd) {
+        return cmd.startsWith("G01") ? new G01() : null;
+    }
 
     @Override
     public String getCmd() {

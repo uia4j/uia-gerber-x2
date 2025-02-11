@@ -1,6 +1,8 @@
 package uia.gerber.x2.font.arial;
 
-public final class D118v extends D {
+import uia.gerber.x2.font.ASCII;
+
+public final class D118v extends ASCII {
 
     public static int[][] paths;
 

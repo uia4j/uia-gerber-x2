@@ -1,6 +1,8 @@
 package uia.gerber.x2.font.dialog;
 
-public final class D080P extends D {
+import uia.gerber.x2.font.ASCII;
+
+public final class D080P extends ASCII {
 
     private static final int[][] paths;
 

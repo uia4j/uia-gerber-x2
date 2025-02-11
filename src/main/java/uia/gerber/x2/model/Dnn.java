@@ -18,8 +18,12 @@ public class Dnn implements GerberX2Statement {
     private final String name;
 
     public Dnn(int dCode) {
-        if (dCode < 10 || dCode > 999) {
-            throw new IllegalArgumentException("number out of range [10..999]");
+        this(dCode, true);
+    }
+
+    public Dnn(int dCode, boolean write) {
+        if (write && (dCode < 10 || dCode > 999)) {
+            throw new IllegalArgumentException("d" + dCode + " out of range [10..999]");
         }
         this.name = String.format("D%03d", dCode);
     }

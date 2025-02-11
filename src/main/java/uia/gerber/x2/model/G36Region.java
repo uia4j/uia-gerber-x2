@@ -18,14 +18,17 @@ public class G36Region implements GerberX2Statement {
 
     private List<ATTR> attributes;
 
-    public final D02Move start;
+    private final List<Contour> contours;
 
-    public final List<Contour> contours;
-
-    public G36Region(D02Move start) {
+    public G36Region() {
         this.attributes = Collections.emptyList();
-        this.start = start;
         this.contours = new ArrayList<>();
+    }
+
+    public Contour create(D02Move d02) {
+        Contour c = new Contour(d02);
+        this.contours.add(c);
+        return c;
     }
 
     @Override
@@ -49,7 +52,6 @@ public class G36Region implements GerberX2Statement {
             attr.write(out);
         }
         out.write("G36*\n".getBytes());
-        this.start.write(out);
         for (int i = 0; i < this.contours.size(); i++) {
             this.contours.get(i).write(out);
         }
@@ -62,73 +64,30 @@ public class G36Region implements GerberX2Statement {
      * @author Kyle K. Lin
      *
      */
-    public static class Contour implements GerberX2Statement {
+    public static class Contour {
+
+        private final D02Move d02;
+
+        private final List<IG36Stmt> stmts;
+
+        public Contour(D02Move d02) {
+            this.d02 = d02;
+            this.stmts = new ArrayList<>();
+        }
 
         /**
-         * 直線
+         *
+         * @param stmt one of D01, G01, G02, G03.
          */
-        public static final String G01 = "G01";
-
-        /**
-         * 順時針
-         */
-        public static final String G02 = "G02";
-
-        /**
-         * 逆時針
-         */
-        public static final String G03 = "G03";
-
-        public final String g;
-
-        public final D01Plot d1;
-
-        public final D03Flash d3;
-
-        public Contour(String g) {
-            this.g = g;
-            this.d1 = null;
-            this.d3 = null;
+        public Contour plot(IG36Stmt stmt) {
+            this.stmts.add(stmt);
+            return this;
         }
 
-        public Contour(D01Plot d1) {
-            this.g = null;
-            this.d1 = d1;
-            this.d3 = null;
-        }
-
-        public Contour(D03Flash d3) {
-            this.g = null;
-            this.d1 = null;
-            this.d3 = d3;
-        }
-
-        @Override
-        public String getCmd() {
-            if (this.g == null) {
-                return this.d1 != null ? this.d1.getCmd() : this.d3.getCmd();
-            }
-            else if (this.d1 != null) {
-                return this.g + this.d1.getCmd();
-            }
-            else if (this.d3 != null) {
-                return this.g + this.d3.getCmd();
-            }
-            else {
-                return this.g;
-            }
-        }
-
-        @Override
         public void write(OutputStream out) throws IOException {
-            if (this.g != null) {
-                out.write((this.g + "*\n").getBytes());
-            }
-            else if (this.d1 != null) {
-                this.d1.write(out);
-            }
-            else {
-                this.d3.write(out);
+            this.d02.write(out);
+            for (IG36Stmt stmt : this.stmts) {
+                stmt.write(out);
             }
         }
     }

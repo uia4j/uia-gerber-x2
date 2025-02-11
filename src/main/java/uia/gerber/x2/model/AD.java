@@ -6,15 +6,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import uia.gerber.x2.GerberX2Statement;
-
 /**
  * AD(Aperture Definition) creates an aperature.
  *
  * @author Kyle K. Lin
  *
  */
-public class AD implements GerberX2Statement {
+public class AD implements IAD {
 
     private List<ATTR> attributes;
 
@@ -45,6 +43,11 @@ public class AD implements GerberX2Statement {
     }
 
     @Override
+    public String getDnn() {
+        return this.dCode;
+    }
+
+    @Override
     public List<ATTR> getAttributes() {
         return this.attributes;
     }
@@ -52,10 +55,6 @@ public class AD implements GerberX2Statement {
     @Override
     public void setAttributes(List<ATTR> attributes) {
         this.attributes = new ArrayList<>(attributes);
-    }
-
-    public String getDnn() {
-        return this.dCode;
     }
 
     public void setDnn(String dnn) {

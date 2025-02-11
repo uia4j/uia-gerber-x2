@@ -9,20 +9,24 @@ import uia.gerber.x2.GerberX2Statement;
 import uia.gerber.x2.model.D01Plot;
 import uia.gerber.x2.model.D02Move;
 import uia.gerber.x2.model.G36Region;
-import uia.gerber.x2.model.G36Region.Contour;
 import uia.gerber.x2.model.LP;
 
 public abstract class ASCII {
 
     protected abstract int[][] getData();
 
+    private GFont gFont;
+
     public abstract int getWidth();
 
-    public abstract int getHeight();
+    public ASCII font(GFont gFont) {
+        this.gFont = gFont;
+        return this;
+    }
 
     public void println() {
         int w = getWidth();
-        int h = getHeight();
+        int h = this.gFont.getHeight();
 
         byte[] map = new byte[w * h];
         Arrays.fill(map, (byte) 0x20);
@@ -42,30 +46,33 @@ public abstract class ASCII {
         }
     }
 
-    public List<GerberX2Statement> g36(long fsX, long fsY, int scale) {
-        fsY += (getHeight() * scale);
-        int fsW = getWidth();
-        List<GerberX2Statement> result = new ArrayList<>();
+    public List<GerberX2Statement> g36(long fsX, long fsY, long fsH) {
         int[][] data = getData();
         if (data.length == 0) {
             return Collections.emptyList();
         }
 
+        int scale = (int) (fsH / this.gFont.getHeight());
+        int _h = scale * this.gFont.getHeight();
+
+        fsY = (fsY + _h + (fsH - _h) / 2);
+        List<GerberX2Statement> result = new ArrayList<>();
         for (int i = 0; i < data.length; i++) {
             int[] path = data[i];
 
             // dark or clear
             result.add(new LP(path[0] == 0x31));
 
-            int p = path[1];
-            long _fsX = fsX + (p % fsW) * scale;
-            long _fsY = fsY - (p / fsW) * scale;
-            G36Region g36 = new G36Region(new D02Move(_fsX, _fsY));
+            int yx = path[1];    // ????
+            long _fsX = fsX + (yx % getWidth()) * scale;
+            long _fsY = fsY - (yx / getWidth()) * scale;
+            G36Region g36 = new G36Region();
+            G36Region.Contour contour = g36.create(new D02Move(_fsX, _fsY));
             for (int j = 2; j < path.length; j++) {
-                p = path[j];
-                long _x = fsX + (p % fsW) * scale;
-                long _y = fsY - (p / fsW) * scale;
-                g36.contours.add(new Contour(new D01Plot(_x == _fsX ? null : _x, _y == _fsY ? null : _y)));
+                yx = path[j];
+                long _x = fsX + (yx % getWidth()) * scale;
+                long _y = fsY - (yx / getWidth()) * scale;
+                contour.plot(new D01Plot(_x == _fsX ? null : _x, _y == _fsY ? null : _y));
                 _fsX = _x;
                 _fsY = _y;
             }

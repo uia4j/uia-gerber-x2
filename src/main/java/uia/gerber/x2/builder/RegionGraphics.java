@@ -5,7 +5,9 @@ import java.io.OutputStream;
 
 import uia.gerber.x2.model.D01Plot;
 import uia.gerber.x2.model.D02Move;
-import uia.gerber.x2.model.G36Region.Contour;
+import uia.gerber.x2.model.G01;
+import uia.gerber.x2.model.G02;
+import uia.gerber.x2.model.G03;
 
 /**
  * Region(G36..G37) graphics.
@@ -91,9 +93,9 @@ public class RegionGraphics implements GerberX2Graphics {
      */
     public RegionGraphics lineTo(Long fsX, Long fsY) throws IOException {
         if (this.state != 1) {
-            new Contour(Contour.G01).write(this.out);
+            new G01().write(this.out);
         }
-        new Contour(new D01Plot(vx(fsX), vy(fsY))).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY)).write(this.out);
         this.state = 1;
         apply(fsX, fsY);
         return this;
@@ -109,9 +111,9 @@ public class RegionGraphics implements GerberX2Graphics {
      */
     public RegionGraphics lineToH(Long fsX) throws IOException {
         if (this.state != 1) {
-            new Contour(Contour.G01).write(this.out);
+            new G01().write(this.out);
         }
-        new Contour(new D01Plot(fsX, null)).write(this.out);
+        new D01Plot(fsX, null).write(this.out);
         this.state = 1;
         this.lastX = fsX;
         return this;
@@ -127,9 +129,9 @@ public class RegionGraphics implements GerberX2Graphics {
      */
     public RegionGraphics lineToV(Long fsY) throws IOException {
         if (this.state != 1) {
-            new Contour(Contour.G01).write(this.out);
+            new G01().write(this.out);
         }
-        new Contour(new D01Plot(null, fsY)).write(this.out);
+        new D01Plot(null, fsY).write(this.out);
         this.state = 1;
         this.lastY = fsY;
         return this;
@@ -147,9 +149,9 @@ public class RegionGraphics implements GerberX2Graphics {
      */
     public RegionGraphics cwTo(Long fsX, Long fsY, long fsCX, long fsCY) throws IOException {
         if (this.state != 2) {
-            new Contour(Contour.G02).write(this.out);
+            new G02().write(this.out);
         }
-        new Contour(new D01Plot(vx(fsX), vy(fsY), vx(fsCX - this.lastX), vy(fsCY - this.lastY))).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), vx(fsCX - this.lastX), vy(fsCY - this.lastY)).write(this.out);
         this.state = 2;
         apply(fsX, fsY);
         return this;
@@ -167,9 +169,9 @@ public class RegionGraphics implements GerberX2Graphics {
      */
     public RegionGraphics ccwTo(Long fsX, Long fsY, long fsCX, long fsCY) throws IOException {
         if (this.state != 3) {
-            new Contour(Contour.G03).write(this.out);
+            new G03().write(this.out);
         }
-        new Contour(new D01Plot(vx(fsX), vy(fsY), vx(fsCX - this.lastX), vy(fsCY - this.lastY))).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), vx(fsCX - this.lastX), vy(fsCY - this.lastY)).write(this.out);
         this.state = 3;
         apply(fsX, fsY);
         return this;

@@ -11,7 +11,8 @@ public class ASCIITest {
     @Test
     public void test() {
         int x = 0;
-        for (ASCII ascii : GFontFactory.get("Arial").text("x")) {
+        GFont gFont = GFontFactory.get("Arial");
+        for (ASCII ascii : gFont.text("x")) {
             List<GerberX2Statement> g36s = ascii.g36(x, 1000000, 100);
             x += ascii.getWidth() * 100;
             g36s.forEach(g36 -> {
@@ -28,7 +29,8 @@ public class ASCIITest {
     @Test
     public void testArial() {
         int x = 0;
-        for (ASCII ascii : GFontFactory.get("Arial").text("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
+        GFont gFont = GFontFactory.get("Arial");
+        for (ASCII ascii : gFont.text("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
             List<GerberX2Statement> g36s = ascii.g36(x, 1000000, 100);
             x += ascii.getWidth() * 100;
             g36s.forEach(g36 -> {

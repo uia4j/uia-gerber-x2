@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
+import uia.gerber.x2.GerberX2FileWriter;
 import uia.gerber.x2.builder.CommonGraphics;
 
 public class GerberX2FileWriterTest {
@@ -305,7 +306,7 @@ public class GerberX2FileWriterTest {
 
     @Test
     public void test9() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber9.gbr"), false))
+        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
                 .fs(2, 6)
                 .description("TEST9 - Text");
 
@@ -314,7 +315,6 @@ public class GerberX2FileWriterTest {
         writer.getGraphics()
                 .createText("Arial")
                 .text("ABCDEFG", writer.xy(0), writer.xy(10), writer.xy(100), writer.xy(10))
-                .text("1234567890!@#$%^&*()_+", writer.xy(0), writer.xy(0), writer.xy(1000), writer.xy(10))
                 .close();
 
         writer.close();

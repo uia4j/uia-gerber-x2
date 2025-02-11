@@ -31,14 +31,12 @@ public class TextGraphics implements GerberX2Graphics {
     }
 
     public TextGraphics text(String text, long fsX, long fsY, long fsW, long fsH) throws IOException {
-        int scale = (int) (0.8 * fsH / 162);
-        int oy = (int) (0.2 * fsH / 162);
         for (ASCII ascii : this.font.text(text)) {
-            List<GerberX2Statement> g36s = ascii.g36(fsX, fsY + oy, scale);
+            List<GerberX2Statement> g36s = ascii.g36(fsX, fsY, fsH);
             for (GerberX2Statement g36 : g36s) {
                 g36.write(this.out);
             }
-            fsX += (ascii.getWidth() * scale);
+            fsX += (ascii.getWidth() * this.font.scale((int) fsW));
         }
         return this;
     }

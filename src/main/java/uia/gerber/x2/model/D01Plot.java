@@ -13,7 +13,7 @@ import uia.gerber.x2.TokenUtils;
  * @author Kyle K. Lin
  *
  */
-public class D01Plot implements IOp {
+public class D01Plot implements IOp, IG36Stmt {
 
     private String g;
 

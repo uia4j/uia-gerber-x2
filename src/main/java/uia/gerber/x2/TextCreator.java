@@ -43,15 +43,26 @@ public class TextCreator {
             TextCreator::p7
     };
 
+    /**
+     * path value
+     */
     private Point pV;
 
+    /**
+     * area value
+     */
     private Point aV;
 
+    /**
+     * direction
+     */
     private int dir;
 
     private int width;
 
     private int height;
+
+    private int descent;
 
     private byte[] data;
 
@@ -70,6 +81,7 @@ public class TextCreator {
         FontMetrics m = ca.getFontMetrics(font);
         this.width = m.stringWidth(one);
         this.height = m.getHeight();
+        this.descent = m.getDescent();
 
         BufferedImage image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
 
@@ -140,6 +152,7 @@ public class TextCreator {
     public void print(List<List<Integer>> paths) {
         System.out.println("width = " + this.width);
         System.out.println("height = " + this.height);
+        System.out.println("descent = " + this.descent);
 
         int i = 0;
         System.out.println("private static final int[][] paths;");

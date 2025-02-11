@@ -2,10 +2,6 @@ package uia.gerber.x2.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import uia.gerber.x2.GerberX2Statement;
 
 /**
  * AB(Block Aperture) creates a block aperture.
@@ -13,15 +9,12 @@ import uia.gerber.x2.GerberX2Statement;
  * @author Kyle K. Lin
  *
  */
-public class AB implements GerberX2Statement {
+public class AB implements IAD {
 
-    private final String name;
+    private final String dnn;
 
-    public final List<GerberX2Statement> stmts;
-
-    public AB(String name) {
-        this.name = name;
-        this.stmts = new ArrayList<>();
+    public AB(String dnn) {
+        this.dnn = dnn;
     }
 
     @Override
@@ -30,11 +23,12 @@ public class AB implements GerberX2Statement {
     }
 
     @Override
+    public String getDnn() {
+        return this.dnn;
+    }
+
+    @Override
     public void write(OutputStream out) throws IOException {
-        out.write(String.format("%%AB%S*%%\n", this.name).getBytes());
-        for (GerberX2Statement stmt : this.stmts) {
-            stmt.write(out);
-        }
-        out.write("%AB*%\n".getBytes());
+        out.write(String.format("%%AB%S*%%\n", this.dnn).getBytes());
     }
 }

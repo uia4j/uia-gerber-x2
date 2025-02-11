@@ -105,7 +105,7 @@ import uia.gerber.x2.font.arial.D126;
  * @author Kyle K. Lin
  *
  */
-public class Arial implements GFont {
+public class Arial extends GFont {
 
     private static final ASCII[] ascii = new ASCII[128];
 
@@ -209,7 +209,7 @@ public class Arial implements GFont {
 
     @Override
     public ASCII ch(char ch) {
-        return ascii[(byte) ch];
+        return ascii[(byte) ch].font(this);
     }
 
     @Override
@@ -219,5 +219,15 @@ public class Arial implements GFont {
             result.add(ch(ch));
         }
         return result;
+    }
+
+    @Override
+    public int getHeight() {
+        return 162;
+    }
+
+    @Override
+    public int getDescent() {
+        return 30;
     }
 }
