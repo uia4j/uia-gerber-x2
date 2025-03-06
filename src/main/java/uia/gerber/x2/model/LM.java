@@ -11,13 +11,13 @@ import java.io.OutputStream;
  */
 public class LM implements ILoad {
 
-    public enum MrriorType {
+    public enum MirrorType {
         N, X, Y, XY
     }
 
-    private MrriorType mt;
+    private MirrorType mt;
 
-    public LM(MrriorType mt) {
+    public LM(MirrorType mt) {
         this.mt = mt;
     }
 

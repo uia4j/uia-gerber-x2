@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.antlr.v4.runtime.Token;
 
 import uia.gerber.x2.TokenUtils;
+import uia.gerber.x2.Valuer;
 
 /**
  * D01 creates a straight-line segment or a circular segment by plotting from the current point to the operation coordinates.
@@ -98,16 +99,16 @@ public class D01Plot implements IOp, IG36Stmt {
         return this.x;
     }
 
-    public void setX(Long x) {
-        this.x = x;
+    public void setX(Long fsX) {
+        this.x = fsX;
     }
 
     public Long getY() {
         return this.y;
     }
 
-    public void setY(Long y) {
-        this.y = y;
+    public void setY(Long fsY) {
+        this.y = fsY;
     }
 
     public Long getI() {
@@ -124,6 +125,14 @@ public class D01Plot implements IOp, IG36Stmt {
 
     public void setJ(Long j) {
         this.j = j;
+    }
+
+    @Override
+    public void scale(Valuer from, Valuer to) {
+        this.x = to.out(from.in(this.x));
+        this.y = to.out(from.in(this.y));
+        this.i = to.out(from.in(this.i));
+        this.j = to.out(from.in(this.j));
     }
 
     @Override

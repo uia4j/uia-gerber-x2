@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import uia.gerber.x2.GerberX2FileWriter;
 import uia.gerber.x2.builder.CommonGraphics;
+import uia.gerber.x2.model.LM.MirrorType;
 
 public class GerberX2FileWriterTest {
 
@@ -178,11 +178,15 @@ public class GerberX2FileWriterTest {
                 .move(writer.xy(0), writer.xy(0))
                 .lineTo(writer.xy(0.176), null)
                 .lineTo(null, writer.xy(0.276))
-                .lineTo(writer.xy(0), null)
+                .lineTo(writer.xy(0), writer.xy(0.176))
                 .lineTo(null, writer.xy(0))
                 .close();
 
-        cg.dnn(170).flash(writer.xy(0), writer.xy(0));
+        cg.dnn(170)
+                .mirror(MirrorType.XY)
+                .flash(writer.xy(0), writer.xy(0))
+                .mirror(MirrorType.N)
+                .flash(writer.xy(0), writer.xy(0));
 
         writer.close();
     }
@@ -278,7 +282,7 @@ public class GerberX2FileWriterTest {
         bg.close();
 
         cg.loadPolarity(true);
-        cg.dnn(130)
+        cg.dnn(130).rotate(BigDecimal.valueOf(30))
                 .flash(writer.xy(0), writer.xy(0))
                 .flash(writer.xy(2), writer.xy(0))
                 .flash(writer.xy(2), writer.xy(2))
@@ -306,17 +310,47 @@ public class GerberX2FileWriterTest {
 
     @Test
     public void test9() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(System.out)
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber9.gbr"), false))
                 .fs(2, 6)
                 .description("TEST9 - Text");
 
         writer.start();
 
         writer.getGraphics()
+                .mirror(MirrorType.Y)
                 .createText("Arial")
-                .text("ABCDEFG", writer.xy(0), writer.xy(10), writer.xy(100), writer.xy(10))
+                .text("I jump to 123. great", writer.xy(0), writer.xy(0), writer.xy(100), writer.xy(10))
                 .close();
 
         writer.close();
+    }
+
+    @Test
+    public void testA() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerberA.gbr"), false))
+                .fs(2, 6)
+                .description("TESTA");
+
+        writer.start();
+
+        CommonGraphics cg = writer.getGraphics();
+
+        cg.layer("A")
+                .createText("Arial")
+                .text("Layer A", writer.xy(0), writer.xy(0), writer.xy(100), writer.xy(10));
+
+        cg.layer("B")
+                .createText("Arial")
+                .text("Layer B", writer.xy(0), writer.xy(20), writer.xy(100), writer.xy(10))
+                .close();
+
+        writer.close();
+    }
+
+    @Test
+    public void testScale() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(new GerberX2Scaler("samples/gerberScaled.gbr", 4, 4));
+        r.run("samples/gerber2.gbr");
+        // r.run("D:\\workspace\\htks\\air\\01.req\\PLP\\2025-03-03\\1-2-3-4-5-6\\P0AC64PQ0001-Q2-GOLDEN MAP.gbr");
     }
 }

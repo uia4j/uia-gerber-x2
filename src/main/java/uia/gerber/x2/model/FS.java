@@ -24,6 +24,18 @@ public class FS implements GerberX2Statement {
         this.valuer = valuer;
     }
 
+    public Valuer valuer() {
+        return this.valuer;
+    }
+
+    public int intDigi() {
+        return this.valuer.intDigi();
+    }
+
+    public int decDigi() {
+        return this.valuer.decDigi();
+    }
+
     @Override
     public String getCmd() {
         return "FS";

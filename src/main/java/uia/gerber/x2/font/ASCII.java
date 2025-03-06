@@ -63,7 +63,8 @@ public abstract class ASCII {
             // dark or clear
             result.add(new LP(path[0] == 0x31));
 
-            int yx = path[1];    // ????
+            int yx = path[1];    // special format, refer TextCreator.java line 249
+
             long _fsX = fsX + (yx % getWidth()) * scale;
             long _fsY = fsY - (yx / getWidth()) * scale;
             G36Region g36 = new G36Region();

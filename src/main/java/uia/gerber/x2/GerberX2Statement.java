@@ -38,6 +38,9 @@ public interface GerberX2Statement {
     public default void setAttributes(List<ATTR> attrs) {
     }
 
+    public default void scale(Valuer from, Valuer to) {
+    }
+
     /**
      * Writes the statement to the output stream.
      *

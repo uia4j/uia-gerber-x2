@@ -71,6 +71,9 @@ public class Valuer {
      * @return The number.
      */
     public BigDecimal in(String text) {
+        if (text == null) {
+            return null;
+        }
         return in(Long.parseLong(text));
     }
 
@@ -82,11 +85,14 @@ public class Valuer {
      * @param v The value to be parsed.
      * @return The number.
      */
-    public BigDecimal in(long v) {
+    public BigDecimal in(Long v) {
+        if (v == null) {
+            return null;
+        }
         if (v < 0) {
             long i = (-v) / this.scale;
             long d = (-v) % this.scale;
-            return new BigDecimal(-i + "." + d);
+            return new BigDecimal(i + "." + d).multiply(BigDecimal.valueOf(-1));
         }
         else {
             long i = v / this.scale;
@@ -103,7 +109,10 @@ public class Valuer {
      * @param value The number.
      * @return The text.
      */
-    public long out(long value) {
+    public Long out(Long value) {
+        if (value == null) {
+            return null;
+        }
         return value * this.scale;
     }
 
@@ -115,7 +124,10 @@ public class Valuer {
      * @param value The number.
      * @return The text.
      */
-    public long out(double value) {
+    public Long out(Double value) {
+        if (value == null) {
+            return null;
+        }
         return (long) (value * this.scale);
     }
 
@@ -127,7 +139,10 @@ public class Valuer {
      * @param value The number.
      * @return The text.
      */
-    public long out(BigDecimal value) {
+    public Long out(BigDecimal value) {
+        if (value == null) {
+            return null;
+        }
         return value.multiply(BigDecimal.valueOf(this.scale)).longValue();
     }
 }

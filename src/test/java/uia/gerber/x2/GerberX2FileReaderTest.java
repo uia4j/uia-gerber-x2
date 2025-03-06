@@ -8,13 +8,14 @@ import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.IAD;
+import uia.gerber.x2.model.LNLayer;
 
 public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
 
     @Test
     public void test() throws IOException {
         GerberX2FileReader r = new GerberX2FileReader(this);
-        r.run("samples/plp/FU.gbr");
+        r.run("samples/plp/ML1.gbr");
     }
 
     @Test
@@ -78,47 +79,49 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
     }
 
     @Override
-    public void enter(int seqNo, GerberX2Statement stmt) {
+    public void enter(int lineNo, GerberX2Statement stmt) {
+        // out(stmt);
     }
 
     @Override
-    public void unknown(int seqNo, String cmd) {
-        System.out.println(seqNo + " unk, " + cmd);
+    public void unknown(int lineNo, String cmd) {
+        System.out.println(lineNo + " unk, " + cmd);
     }
 
     @Override
-    public void error(int seqNo, String cmd) {
-        System.out.println(seqNo + " err, " + cmd);
+    public void error(int lineNo, String cmd) {
+        System.out.println(lineNo + " err, " + cmd);
     }
 
     @Override
-    public void apertureDefined(IAD stmt) {
-        System.out.println("== " + stmt.getDnn() + " ==");
+    public void apertureDefined(int lineNo, IAD stmt) {
+        // System.out.println("== " + stmt.getDnn() + " ==");
     }
 
     @Override
-    public void enterG36() {
+    public void enterG36(int lineNo) {
     }
 
     @Override
-    public void exitG36(G36Region g36Region) {
-        out(g36Region);
+    public void exitG36(int lineNo, G36Region g36Region) {
+        // out(g36Region);
     }
 
     @Override
-    public void enterAB(AB ab) {
+    public void enterAB(int lineNo, AB ab) {
     }
 
     @Override
-    public void exitAB(ABBlock block) {
-        out(block);
+    public void exitAB(int lineNo, ABBlock block) {
+        // out(block);
     }
 
     @Override
-    public void beforeEnd() {
-        System.out.println("== EOF ==");
+    public void enterLayer(int lineNo, LNLayer layer) {
+        System.out.println("Layer=" + layer.getName());
     }
 
+    @SuppressWarnings("unused")
     private void out(GerberX2Statement stmt) {
         try {
             stmt.write(System.out);
@@ -126,6 +129,5 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
         catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
     }
 }

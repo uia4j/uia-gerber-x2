@@ -54,7 +54,6 @@ public class GerberX2FileWriter {
     public GerberX2FileWriter(OutputStream out) {
         this.out = new OutputStreamExt(out);
         this.unit = MO.UnitType.MM;
-        this.fsValuer = new Valuer(3, 6);
         this.ad = new ArrayList<>();
         this.attrs = new ArrayList<ATTR>();
     }
@@ -131,8 +130,8 @@ public class GerberX2FileWriter {
     /**
      * Sets the format specification.
      *
-     * @param intDigi The digi of integer.
-     * @param decDigi The digi of decimal.
+     * @param intDigi The digit of integer.
+     * @param decDigi The digit of decimal.
      * @return This writer.
      */
     public GerberX2FileWriter fs(int intDigi, int decDigi) {
@@ -233,35 +232,94 @@ public class GerberX2FileWriter {
     }
 
     /**
+     * Open the output stream without statements.
+     *
+     * @return 0: success, 1: started already, 2: closed.
+     * @throws IOException Failed to write records into output stream.
+     */
+    public int open() throws IOException {
+        return start(false, false, false, false, false, false);
+    }
+
+    /**
+     * Starts the writer.
+     *
+     * @param intDigi The digit of integer.
+     * @param decDigi The digit of decimal.
+     * @return
+     * @throws IOException
+     */
+    public int start(int intDigi, int decDigi) throws IOException {
+        if (this.fsValuer != null) {
+            return 1;
+        }
+        if (this.step == 2) {
+            return 2;
+        }
+
+        open();
+        this.fsValuer = new Valuer(intDigi, decDigi);
+        new FS(this.fsValuer).write(this.out);
+        return 0;
+    }
+
+    /**
      * Starts the writer.
      *
      * @return 0: success, 1: started already, 2: closed.
      * @throws IOException Failed to write records into output stream.
      */
     public int start() throws IOException {
+        return start(true, true, true, true, true, true);
+    }
+
+    /**
+     * Starts the writer.
+     *
+     * @param comment with G04
+     * @param fs with FS
+     * @param mo with MO
+     * @param createdDate with TF.CreationDate
+     * @param g01 with G01
+     * @param g75 with G75
+     * @return 0: success, 1: started already, 2: closed.
+     * @throws IOException Failed to write records into output stream.
+     */
+    public int start(boolean comment, boolean fs, boolean mo, boolean createdDate, boolean g01, boolean g75) throws IOException {
         if (this.step != 0) {
             return this.step;
         }
 
         this.rowCount = 0;
-
-        new G04Comment(this.description).write(this.out);
-        new FS(this.fsValuer).write(this.out);
-        new MO(this.unit).write(this.out);
-
-        ATTR attr0 = new ATTR("TF");
-        attr0.setName(".CreationDate");
-        attr0.getFields().add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date()));
-        attr0.write(this.out);
-        for (ATTR attr : this.attrs) {
-            attr.write(this.out);
+        if (comment) {
+            new G04Comment(this.description).write(this.out);
         }
-        new G01().write(this.out);
-        new G75().write(this.out);
+        if (fs) {
+            new FS(this.fsValuer).write(this.out);
+        }
+        if (mo) {
+            new MO(this.unit).write(this.out);
+        }
+        if (createdDate) {
+            ATTR attr0 = new ATTR("TF");
+            attr0.setName(".CreationDate");
+            attr0.getFields().add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date()));
+            attr0.write(this.out);
+            for (ATTR attr : this.attrs) {
+                attr.write(this.out);
+            }
+        }
+        if (g01) {
+            new G01().write(this.out);
+        }
+        if (g75) {
+            new G75().write(this.out);
+        }
 
         this.step = 1;
         this.graphics = new CommonGraphics(this);
         return 0;
+
     }
 
     /**
@@ -280,6 +338,7 @@ public class GerberX2FileWriter {
         this.graphics.close();
         this.graphics = null;
         this.out.write("M02*\n".getBytes());
+        this.out.close();
         this.step = 2;
         return 0;
     }

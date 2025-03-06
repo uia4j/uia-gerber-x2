@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.antlr.v4.runtime.Token;
 
 import uia.gerber.x2.TokenUtils;
+import uia.gerber.x2.Valuer;
 
 /**
  * D02 moves the current point to the operation coordinates. No graphical object is generated.
@@ -24,15 +25,21 @@ public class D02Move implements IOp {
     public D02Move() {
     }
 
-    public D02Move(Long x, Long y) {
-        this.x = x;
-        this.y = y;
+    public D02Move(Long fsX, Long fsY) {
+        this.x = fsX;
+        this.y = fsY;
     }
 
     public D02Move(Token g, Token x, Token y) {
         this.g = g == null ? null : g.getText();
         this.x = x == null ? null : TokenUtils.parseLong(x);
         this.y = y == null ? null : TokenUtils.parseLong(y);
+    }
+
+    @Override
+    public void scale(Valuer from, Valuer to) {
+        this.x = to.out(from.in(this.x));
+        this.y = to.out(from.in(this.y));
     }
 
     @Override
@@ -44,16 +51,16 @@ public class D02Move implements IOp {
         return this.x;
     }
 
-    public void setX(Long x) {
-        this.x = x;
+    public void setX(Long fsX) {
+        this.x = fsX;
     }
 
     public Long getY() {
         return this.y;
     }
 
-    public void setY(Long y) {
-        this.y = y;
+    public void setY(Long fsY) {
+        this.y = fsY;
     }
 
     @Override

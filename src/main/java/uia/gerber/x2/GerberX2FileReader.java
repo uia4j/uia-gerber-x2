@@ -25,7 +25,7 @@ import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.G37;
 import uia.gerber.x2.model.G75;
 import uia.gerber.x2.model.IAD;
-import uia.gerber.x2.model.LN;
+import uia.gerber.x2.model.LNLayer;
 import uia.gerber.x2.model.LP;
 import uia.gerber.x2.model.M02;
 import uia.gerber.x2.model.MO;
@@ -33,9 +33,9 @@ import uia.gerber.x2.model.MO.UnitType;
 
 public class GerberX2FileReader {
 
-    private int seq;
+    private final GerberX2FileReaderListener listener;
 
-    private GerberX2FileReaderListener listener;
+    private int lineNo;
 
     private ABBlock ab;
 
@@ -43,45 +43,12 @@ public class GerberX2FileReader {
 
     private G36Region.Contour contour;
 
+    private FS fs;
+
+    private LNLayer layer;
+
     public GerberX2FileReader() {
         this.listener = new GerberX2FileReaderListener() {
-
-            @Override
-            public void enter(int seqNo, GerberX2Statement stmt) {
-            }
-
-            @Override
-            public void unknown(int seqNo, String cmd) {
-            }
-
-            @Override
-            public void error(int seqNo, String cmd) {
-            }
-
-            @Override
-            public void apertureDefined(IAD stmt) {
-            }
-
-            @Override
-            public void enterAB(AB ab) {
-            }
-
-            @Override
-            public void exitAB(ABBlock blcok) {
-            }
-
-            @Override
-            public void enterG36() {
-            }
-
-            @Override
-            public void exitG36(G36Region g36Region) {
-            }
-
-            @Override
-            public void beforeEnd() {
-            }
-
         };
     }
 
@@ -89,16 +56,25 @@ public class GerberX2FileReader {
         this.listener = listener;
     }
 
-    public void run(String filePath) throws IOException {
+    public synchronized void run(String filePath) throws IOException {
+        this.lineNo = 0;
+        this.ab = null;
+        this.g36 = null;
+        this.contour = null;
+        this.fs = null;
+        this.layer = null;
         Files.lines(Paths.get(filePath)).forEach(this::handle);
+        if (this.listener != null) {
+            this.listener.eof();
+        }
     }
 
     private void handle(String line) {
-        this.seq++;
+        this.lineNo++;
         int len = line.length();
         if (line.charAt(0) == '%') {
             if (line.charAt(len - 1) != '%') {
-                this.listener.error(this.seq, line);
+                this.listener.error(this.lineNo, line);
                 return;
             }
 
@@ -114,7 +90,7 @@ public class GerberX2FileReader {
         }
         else {
             if (line.charAt(len - 1) != '*') {
-                this.listener.error(this.seq, line);
+                this.listener.error(this.lineNo, line);
                 return;
             }
 
@@ -169,13 +145,13 @@ public class GerberX2FileReader {
             }
             else if (cmd.equals("G36")) {                           // G36
                 stmt = new G36();
-                this.listener.enterG36();
+                this.listener.enterG36(this.lineNo);
                 this.g36 = new G36Region();
                 this.contour = null;
             }
             else if (cmd.equals("G37")) {                           // G37
                 stmt = new G37();
-                this.listener.exitG36(this.g36);
+                this.listener.exitG36(this.lineNo, this.g36);
                 this.g36 = null;
                 this.contour = null;
             }
@@ -194,7 +170,12 @@ public class GerberX2FileReader {
                 stmt = new LP(false);
             }
             else if (cmd.startsWith("LN")) {                        // LN
-                stmt = new LN(cmd.substring(2));
+                stmt = new LNLayer(cmd.substring(2));
+                if (this.layer != null) {
+                    this.listener.exitLayer(this.lineNo - 1, this.layer);
+                }
+                this.layer = (LNLayer) stmt;
+                this.listener.enterLayer(this.lineNo, this.layer);
             }
         }
         else if (ch == 'A') {                                       // A
@@ -203,11 +184,11 @@ public class GerberX2FileReader {
                 stmt = new AB(dxx);
                 if (cmd.length() > 2) {
                     this.ab = new ABBlock(dxx);
-                    this.listener.apertureDefined((IAD) stmt);
-                    this.listener.enterAB((AB) stmt);
+                    this.listener.apertureDefined(this.lineNo, (IAD) stmt);
+                    this.listener.enterAB(this.lineNo, (AB) stmt);
                 }
                 else {
-                    this.listener.exitAB(this.ab);
+                    this.listener.exitAB(this.lineNo, this.ab);
                     this.ab = null;
                 }
             }
@@ -237,7 +218,7 @@ public class GerberX2FileReader {
                             new BigDecimal(shapeParam[2]),
                             shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
-                this.listener.apertureDefined((IAD) stmt);
+                this.listener.apertureDefined(this.lineNo, (IAD) stmt);
             }
             // TODO:
         }
@@ -269,7 +250,10 @@ public class GerberX2FileReader {
             stmt = new D03Flash(xy[0], xy[1]);
         }
         else if (cmd.equals("M02")) {                               // M02
-            this.listener.beforeEnd();
+            if (this.layer != null) {
+                this.listener.exitLayer(this.lineNo - 1, this.layer);
+            }
+            this.listener.beforeEnd(this.lineNo);
             stmt = new M02();
         }
         else if (cmd.startsWith("MO")) {                            // MO
@@ -277,18 +261,19 @@ public class GerberX2FileReader {
         }
         else if (cmd.startsWith("FS")) {                            // FS
             Integer[] xy = fs(cmd);
-            stmt = new FS(xy[0], xy[1]);
+            this.fs = new FS(xy[0] / 10, xy[0] % 10);
+            stmt = this.fs;
         }
 
         if (stmt == null) {
             stmt = new GerberX2Statement.UNK(cmd, ext);
-            this.listener.unknown(this.seq, cmd);
+            this.listener.unknown(this.lineNo, cmd);
         }
 
         if (this.ab != null && !(stmt instanceof AB)) {
             this.ab.stmts.add(stmt);
         }
-        this.listener.enter(this.seq, stmt);
+        this.listener.enter(this.lineNo, stmt);
 
         if (next != null) {
             exec(next, ext);

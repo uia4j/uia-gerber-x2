@@ -245,7 +245,9 @@ public class TextCreator {
         List<Integer> path = new ArrayList<>();
         path.add(start);
 
+        // important
         int curr = start - this.pV.y * this.width + this.pV.x;
+
         this.data[start] = code;
         int c = 0;
         do {

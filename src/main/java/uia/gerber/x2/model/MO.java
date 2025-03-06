@@ -26,6 +26,10 @@ public class MO implements GerberX2Statement {
         this.unit = unit;
     }
 
+    public UnitType getUnit() {
+        return this.unit;
+    }
+
     @Override
     public String getCmd() {
         return "MO";

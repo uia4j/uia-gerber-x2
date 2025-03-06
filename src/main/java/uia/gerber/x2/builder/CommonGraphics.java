@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 
 import uia.gerber.x2.GerberX2FileWriter;
+import uia.gerber.x2.GerberX2Statement;
 import uia.gerber.x2.model.ADCircle;
 import uia.gerber.x2.model.ADObound;
 import uia.gerber.x2.model.ADRectangle;
@@ -15,7 +16,11 @@ import uia.gerber.x2.model.Dnn;
 import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G02;
 import uia.gerber.x2.model.G03;
+import uia.gerber.x2.model.LM;
+import uia.gerber.x2.model.LM.MirrorType;
+import uia.gerber.x2.model.LNLayer;
 import uia.gerber.x2.model.LP;
+import uia.gerber.x2.model.LR;
 
 /**
  * Common graphics.
@@ -105,7 +110,12 @@ public class CommonGraphics implements GerberX2Graphics {
             throw new IOException(String.format("ADD%03d already exists", dCode));
         }
         endLast();
-        BigDecimal _w = moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+        BigDecimal min = BigDecimal.valueOf(Math.pow(10, -this.writer.fs().decDigi()))
+                .setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+        BigDecimal _w = moWidth.compareTo(min) < 0
+                ? min
+                : moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+
         new ADRectangle(dCode, _w, _w, null).write(this.out);
         return this;
     }
@@ -233,6 +243,17 @@ public class CommonGraphics implements GerberX2Graphics {
             new LP("C").write(this.out);
             this.writer.setDark(false);
         }
+        return this;
+    }
+
+    /**
+     *
+     * @param name The layer name.
+     * @return This graphics object.
+     * @throws IOException Failed to write to the output stream.
+     */
+    public CommonGraphics layer(String name) throws IOException {
+        new LNLayer(name).write(this.out);;
         return this;
     }
 
@@ -481,6 +502,16 @@ public class CommonGraphics implements GerberX2Graphics {
                 .lineToV(fsY);
     }
 
+    public CommonGraphics mirror(MirrorType mt) throws IOException {
+        new LM(mt).write(this.out);
+        return this;
+    }
+
+    public CommonGraphics rotate(BigDecimal degree) throws IOException {
+        new LR(degree).write(this.out);
+        return this;
+    }
+
     /**
      * Creates a text graphics object.
      *
@@ -518,6 +549,11 @@ public class CommonGraphics implements GerberX2Graphics {
         RegionGraphics gs = new RegionGraphics(fsX, fsY, this.lastState, this.out);
         this.lastGS = gs;
         return gs;
+    }
+
+    public CommonGraphics write(GerberX2Statement stmt) throws IOException {
+        stmt.write(this.out);
+        return this;
     }
 
     /**

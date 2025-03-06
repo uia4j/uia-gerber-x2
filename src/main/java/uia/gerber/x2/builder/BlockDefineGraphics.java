@@ -37,6 +37,11 @@ public class BlockDefineGraphics extends CommonGraphics {
     }
 
     @Override
+    public CommonGraphics layer(String name) throws IOException {
+        throw new IOException("LN not supported in AB");
+    }
+
+    @Override
     public StepRepeatGraphics createStepRepeat(int fsX, int fsY, long fsI, long fsJ) throws IOException {
         throw new IOException("AB doesn't support SR(StepRepeat).");
     }

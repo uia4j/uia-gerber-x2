@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.antlr.v4.runtime.Token;
 
 import uia.gerber.x2.TokenUtils;
+import uia.gerber.x2.Valuer;
 
 /**
  * D03 creates a flash object by replicating (flashing) the current aperture at the operation coordinates.
@@ -22,14 +23,20 @@ public class D03Flash implements IOp {
     public D03Flash() {
     }
 
-    public D03Flash(Long x, Long y) {
-        this.x = x;
-        this.y = y;
+    public D03Flash(Long fsX, Long fsY) {
+        this.x = fsX;
+        this.y = fsY;
     }
 
     public D03Flash(Token x, Token y) {
         this.x = TokenUtils.parseLong(x);
         this.y = TokenUtils.parseLong(y);
+    }
+
+    @Override
+    public void scale(Valuer from, Valuer to) {
+        this.x = to.out(from.in(this.x));
+        this.y = to.out(from.in(this.y));
     }
 
     @Override
@@ -41,16 +48,16 @@ public class D03Flash implements IOp {
         return this.x;
     }
 
-    public void setX(Long x) {
-        this.x = x;
+    public void setX(Long fsX) {
+        this.x = fsX;
     }
 
     public Long getY() {
         return this.y;
     }
 
-    public void setY(Long y) {
-        this.y = y;
+    public void setY(Long fsY) {
+        this.y = fsY;
     }
 
     @Override

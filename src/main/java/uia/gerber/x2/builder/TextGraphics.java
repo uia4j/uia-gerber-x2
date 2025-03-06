@@ -32,11 +32,16 @@ public class TextGraphics implements GerberX2Graphics {
 
     public TextGraphics text(String text, long fsX, long fsY, long fsW, long fsH) throws IOException {
         for (ASCII ascii : this.font.text(text)) {
+            long chW = (ascii.getWidth() * this.font.scale((int) fsH));
+            if (fsX + chW > fsX + fsW) {
+                break;
+            }
+
             List<GerberX2Statement> g36s = ascii.g36(fsX, fsY, fsH);
             for (GerberX2Statement g36 : g36s) {
                 g36.write(this.out);
             }
-            fsX += (ascii.getWidth() * this.font.scale((int) fsW));
+            fsX += chW;
         }
         return this;
     }
