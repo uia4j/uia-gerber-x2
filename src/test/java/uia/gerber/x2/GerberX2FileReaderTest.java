@@ -10,6 +10,7 @@ import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.IAD;
 import uia.gerber.x2.model.LNLayer;
 
+@SuppressWarnings("deprecation")
 public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
 
     @Test
@@ -89,7 +90,7 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
     }
 
     @Override
-    public void error(int lineNo, String cmd) {
+    public void error(int lineNo, String cmd, Exception ex) {
         System.out.println(lineNo + " err, " + cmd);
     }
 

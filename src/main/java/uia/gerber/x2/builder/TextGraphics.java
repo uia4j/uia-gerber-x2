@@ -1,13 +1,13 @@
 package uia.gerber.x2.builder;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 import uia.gerber.x2.GerberX2Statement;
 import uia.gerber.x2.font.ASCII;
 import uia.gerber.x2.font.GFont;
 import uia.gerber.x2.font.GFontFactory;
+import uia.gerber.x2.model.LP;
 
 /**
  * Region(G36..G37) graphics.
@@ -17,16 +17,16 @@ import uia.gerber.x2.font.GFontFactory;
  */
 public class TextGraphics implements GerberX2Graphics {
 
-    private OutputStream out;
+    private CommonGraphics cg;
 
-    private final GFont font;
+    private GFont font;
 
-    public TextGraphics(OutputStream out) throws IOException {
-        this(out, "Dialog");
+    public TextGraphics(CommonGraphics cg) throws IOException {
+        this(cg, "Dialog");
     }
 
-    public TextGraphics(OutputStream out, String fontName) throws IOException {
-        this.out = out;
+    public TextGraphics(CommonGraphics cg, String fontName) throws IOException {
+        this.cg = cg;
         this.font = GFontFactory.get(fontName);
     }
 
@@ -39,10 +39,17 @@ public class TextGraphics implements GerberX2Graphics {
 
             List<GerberX2Statement> g36s = ascii.g36(fsX, fsY, fsH);
             for (GerberX2Statement g36 : g36s) {
-                g36.write(this.out);
+                g36.write(this.cg.out);
+                if (g36 instanceof LP) {
+                    this.cg.writer.setDark(((LP) g36).isDark());
+                }
             }
             fsX += chW;
         }
+
+        new LP(true).write(this.cg.out);
+        this.cg.writer.setDark(true);
+
         return this;
     }
 
@@ -53,6 +60,6 @@ public class TextGraphics implements GerberX2Graphics {
 
     @Override
     public void close() throws IOException {
-        this.out = null;
+        this.cg = null;
     }
 }

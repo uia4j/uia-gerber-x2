@@ -11,6 +11,16 @@ import java.io.OutputStream;
  */
 public class G03 implements IState, IG36Stmt {
 
+    private boolean std;
+
+    public G03() {
+        this.std = true;
+    }
+
+    public G03(boolean std) {
+        this.std = std;
+    }
+
     @Override
     public String getCmd() {
         return "G03";
@@ -18,7 +28,12 @@ public class G03 implements IState, IG36Stmt {
 
     @Override
     public void write(OutputStream out) throws IOException {
-        out.write("G03*\n".getBytes());
+        if (this.std) {
+            out.write("G03*\n".getBytes());
+        }
+        else {
+            out.write("G03".getBytes());
+        }
     }
 
 }

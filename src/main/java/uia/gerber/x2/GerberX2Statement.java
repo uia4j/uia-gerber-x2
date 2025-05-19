@@ -76,4 +76,24 @@ public interface GerberX2Statement {
         }
 
     }
+
+    public static class LINE implements GerberX2Statement {
+
+        private final String line;
+
+        public LINE(String line) {
+            this.line = line;
+        }
+
+        @Override
+        public String getCmd() {
+            return this.line;
+        }
+
+        @Override
+        public void write(OutputStream out) throws IOException {
+            out.write((this.line + "\n").getBytes());
+        }
+
+    }
 }

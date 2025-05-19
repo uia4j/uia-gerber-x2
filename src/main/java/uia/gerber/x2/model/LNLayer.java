@@ -6,11 +6,12 @@ import java.io.OutputStream;
 import uia.gerber.x2.GerberX2Statement;
 
 /**
- * G04
+ * LN(Layer Name). Deprecated in 2013.
  *
  * @author Kyle K. Lin
  *
  */
+@Deprecated
 public class LNLayer implements GerberX2Statement {
 
     private final String name;

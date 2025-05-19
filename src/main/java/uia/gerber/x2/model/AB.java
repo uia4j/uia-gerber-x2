@@ -11,15 +11,23 @@ import java.io.OutputStream;
  */
 public class AB implements IAD {
 
+    private final int no;
+
     private final String dnn;
 
     public AB(String dnn) {
+        this.no = Integer.parseInt(dnn.substring(1));
         this.dnn = dnn;
     }
 
     @Override
     public String getCmd() {
         return "AB";
+    }
+
+    @Override
+    public int getNo() {
+        return this.no;
     }
 
     @Override

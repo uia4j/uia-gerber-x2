@@ -25,6 +25,10 @@ public class LP implements ILoad {
         this.polarity = polarity ? "D" : "C";
     }
 
+    public boolean isDark() {
+        return "D".equals(this.polarity);
+    }
+
     @Override
     public String getCmd() {
         return "LP";

@@ -14,33 +14,61 @@ public class GerberX2FileWriterTest {
 
     @Test
     public void test1() throws IOException {
-        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber1.gbr"), false))
+        GerberX2FileWriter writer1 = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber1.gbr"), false))
                 .fs(4, 6)
                 .description("TEST1 - Region");
 
-        writer.start();
+        writer1.start();
 
-        CommonGraphics cg = writer.getGraphics();
+        CommonGraphics cg1 = writer1.getGraphics();
         // region 1
-        cg.loadPolarity(true);
-        cg.createRegion(writer.xy(0.1), writer.xy(0.1))
-                .lineTo(writer.xy(0.5), writer.xy(0.1))
-                .lineTo(writer.xy(0.5), writer.xy(0.4))
-                .ccwTo(writer.xy(0.4), writer.xy(0.5), writer.xy(0.4), writer.xy(0.4))
-                .lineTo(writer.xy(0.1), writer.xy(0.5))
-                .lineTo(writer.xy(0.1), writer.xy(0.1))
+        cg1.loadPolarity(true);
+        cg1.createRegion(writer1.xy(0.1), writer1.xy(0.1))
+                .lineTo(writer1.xy(0.5), writer1.xy(0.1))
+                .lineTo(writer1.xy(0.5), writer1.xy(0.4))
+                .ccwTo(writer1.xy(0.4), writer1.xy(0.5), writer1.xy(0.4), writer1.xy(0.4))
+                .lineTo(writer1.xy(0.1), writer1.xy(0.5))
+                .lineTo(writer1.xy(0.1), writer1.xy(0.1))
+                .close();
+        // region 2
+        cg1.loadPolarity(false);
+        cg1.createRegion(writer1.xy(0.4), writer1.xy(0.4))
+                .lineTo(writer1.xy(0.3), writer1.xy(0.4))
+                .lineTo(writer1.xy(0.3), writer1.xy(0.3))
+                .lineTo(writer1.xy(0.4), writer1.xy(0.3))
+                .lineTo(writer1.xy(0.4), writer1.xy(0.4))
+                .close();
+
+        writer1.close();
+
+        GerberX2FileWriter writer2 = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber1_r.gbr"), false))
+                .fs(4, 6)
+                .rotate(270)
+                .description("TEST1 - Region");
+
+        writer2.start();
+
+        CommonGraphics cg2 = writer2.getGraphics();
+        // region 1
+        cg2.loadPolarity(true);
+        cg2.createRegion(writer2.xy(0.1), writer2.xy(0.1))
+                .lineTo(writer2.xy(0.5), writer2.xy(0.1))
+                .lineTo(writer2.xy(0.5), writer2.xy(0.4))
+                .ccwTo(writer2.xy(0.4), writer2.xy(0.5), writer2.xy(0.4), writer2.xy(0.4))
+                .lineTo(writer2.xy(0.1), writer2.xy(0.5))
+                .lineTo(writer2.xy(0.1), writer2.xy(0.1))
                 .close();
 
         // region 2
-        cg.loadPolarity(false);
-        cg.createRegion(writer.xy(0.4), writer.xy(0.4))
-                .lineTo(writer.xy(0.3), writer.xy(0.4))
-                .lineTo(writer.xy(0.3), writer.xy(0.3))
-                .lineTo(writer.xy(0.4), writer.xy(0.3))
-                .lineTo(writer.xy(0.4), writer.xy(0.4))
+        cg2.loadPolarity(false);
+        cg2.createRegion(writer2.xy(0.4), writer2.xy(0.4))
+                .lineTo(writer2.xy(0.3), writer2.xy(0.4))
+                .lineTo(writer2.xy(0.3), writer2.xy(0.3))
+                .lineTo(writer2.xy(0.4), writer2.xy(0.3))
+                .lineTo(writer2.xy(0.4), writer2.xy(0.4))
                 .close();
 
-        writer.close();
+        writer2.close();
     }
 
     @Test
@@ -83,10 +111,14 @@ public class GerberX2FileWriterTest {
         bg.close();
 
         cg.loadPolarity(true); // important
+        cg.move(writer.xy(0), writer.xy(0));
         cg.dnn(12)
-                .flash(writer.xy(0), writer.xy(0))
+                .mirror(MirrorType.XY)
+                .flash(writer.xy(-1), writer.xy(0))
+                .mirror(MirrorType.X)
+                .flash(writer.xy(-1), writer.xy(1))
+                .mirror(MirrorType.N)
                 .flash(writer.xy(1), writer.xy(0))
-                .flash(writer.xy(0), writer.xy(1))
                 .flash(writer.xy(1), writer.xy(1));
 
         writer.close();
@@ -348,8 +380,19 @@ public class GerberX2FileWriterTest {
     }
 
     @Test
+    public void testB() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerberB.gbr"), false))
+                .fs(2, 6)
+                .attr(TF.part, TF.part_FabricationPanel)
+                .description("TESTA");
+
+        writer.start();
+        writer.close();
+    }
+
+    @Test
     public void testScale() throws IOException {
-        GerberX2FileReader r = new GerberX2FileReader(new GerberX2Scaler("samples/gerberScaled.gbr", 4, 4));
+        GerberX2FileReader r = new GerberX2FileReader(new GerberX2Rescale("samples/gerberScaled.gbr", 4, 4));
         r.run("samples/gerber2.gbr");
         // r.run("D:\\workspace\\htks\\air\\01.req\\PLP\\2025-03-03\\1-2-3-4-5-6\\P0AC64PQ0001-Q2-GOLDEN MAP.gbr");
     }

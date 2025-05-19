@@ -1,15 +1,18 @@
 package uia.gerber.x2;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.ADCircle;
 import uia.gerber.x2.model.ADObound;
 import uia.gerber.x2.model.ADRectangle;
+import uia.gerber.x2.model.AM;
 import uia.gerber.x2.model.ATTR;
 import uia.gerber.x2.model.D01Plot;
 import uia.gerber.x2.model.D02Move;
@@ -25,17 +28,21 @@ import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.G37;
 import uia.gerber.x2.model.G75;
 import uia.gerber.x2.model.IAD;
+import uia.gerber.x2.model.IR;
 import uia.gerber.x2.model.LNLayer;
 import uia.gerber.x2.model.LP;
 import uia.gerber.x2.model.M02;
 import uia.gerber.x2.model.MO;
 import uia.gerber.x2.model.MO.UnitType;
 
+@SuppressWarnings("deprecation")
 public class GerberX2FileReader {
 
     private final GerberX2FileReaderListener listener;
 
     private int lineNo;
+
+    private AM am;
 
     private ABBlock ab;
 
@@ -57,13 +64,26 @@ public class GerberX2FileReader {
     }
 
     public synchronized void run(String filePath) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            run(fis);
+        }
+    }
+
+    public synchronized void run(InputStream fis) throws IOException {
         this.lineNo = 0;
         this.ab = null;
         this.g36 = null;
         this.contour = null;
         this.fs = null;
         this.layer = null;
-        Files.lines(Paths.get(filePath)).forEach(this::handle);
+
+        // remark:
+        //  Files.lines() failed
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, "utf-8"))) {
+            for (String line = null; (line = br.readLine()) != null;) {
+                handle(line);
+            }
+        }
         if (this.listener != null) {
             this.listener.eof();
         }
@@ -72,10 +92,36 @@ public class GerberX2FileReader {
     private void handle(String line) {
         this.lineNo++;
         int len = line.length();
+        if (len == 0) {
+            return;
+        }
+
+        if (this.am != null) {
+            GerberX2Statement stmt = new GerberX2Statement.LINE(line);
+            this.listener.enter(this.lineNo, stmt);
+
+            if (line.charAt(0) == '%') {
+                this.listener.enterAM(this.lineNo, this.am);
+                this.am = null;
+            }
+            else {
+                this.am.getBody().add(line);
+            }
+            return;
+        }
+
         if (line.charAt(0) == '%') {
-            if (line.charAt(len - 1) != '%') {
-                this.listener.error(this.lineNo, line);
+            if (len == 1) {
+                this.listener.enter(this.lineNo, new GerberX2Statement.LINE(line));
                 return;
+            }
+
+            if (!line.startsWith("AM")) {
+                if (line.charAt(len - 1) != '%') {
+                    this.listener.error(this.lineNo, line, new Exception("ExtCmd format is not correct"));
+                    this.listener.enter(this.lineNo, new GerberX2Statement.LINE(line));
+                    return;
+                }
             }
 
             for (String cmd : line.substring(1, len - 1).split("\\*")) {
@@ -83,6 +129,7 @@ public class GerberX2FileReader {
                     exec(cmd, true);
                 }
                 catch (Exception ex) {
+                    this.listener.error(len, cmd, ex);
                     ex.printStackTrace();
                 }
 
@@ -90,7 +137,8 @@ public class GerberX2FileReader {
         }
         else {
             if (line.charAt(len - 1) != '*') {
-                this.listener.error(this.lineNo, line);
+                this.listener.error(this.lineNo, line, new Exception("Cmd format is not correct"));
+                this.listener.enter(this.lineNo, new GerberX2Statement.LINE(line));
                 return;
             }
 
@@ -114,7 +162,7 @@ public class GerberX2FileReader {
 
         if (ch == 'G') {                                            // G
             if (cmd.startsWith("G01")) {                            // G01
-                stmt = new G01();
+                stmt = new G01(cmd.length() == 3);
                 if (this.contour != null) {
                     this.contour.plot((G01) stmt);                  // G36, G01
                 }
@@ -123,7 +171,7 @@ public class GerberX2FileReader {
                 }
             }
             else if (cmd.startsWith("G02")) {                       // G02
-                stmt = new G02();
+                stmt = new G02(cmd.length() == 3);
                 if (this.contour != null) {
                     this.contour.plot((G02) stmt);                  // G36, G02
                 }
@@ -132,7 +180,7 @@ public class GerberX2FileReader {
                 }
             }
             else if (cmd.startsWith("G03")) {                       // G03
-                stmt = new G03();
+                stmt = new G03(cmd.length() == 3);
                 if (this.contour != null) {
                     this.contour.plot((G03) stmt);                  // G36, G03
                 }
@@ -196,8 +244,23 @@ public class GerberX2FileReader {
                 String[] shapeParam = cmd.split("[,X]");
                 String dxx = shapeParam[0].substring(3, shapeParam[0].length() - 1);
 
-                char sn = shapeParam[0].charAt(shapeParam[0].length() - 1);
-                int nCode = Integer.parseInt(dxx);
+                int nCode = 0;
+                char sn = ' ';
+                if (dxx.length() > 2) {
+                    try {
+                        nCode = Integer.parseInt(dxx.substring(0, 3));
+                        sn = shapeParam[0].charAt(3);
+                    }
+                    catch (Exception ex) {
+                        nCode = Integer.parseInt(dxx.substring(0, 2));
+                        sn = shapeParam[0].charAt(2);
+                    }
+                }
+                else {
+                    nCode = Integer.parseInt(dxx);
+                    sn = shapeParam[0].charAt(2);
+                }
+
                 if (sn == 'C') {
                     stmt = new ADCircle(
                             nCode,
@@ -220,6 +283,10 @@ public class GerberX2FileReader {
                 }
                 this.listener.apertureDefined(this.lineNo, (IAD) stmt);
             }
+            else if (cmd.startsWith("AM")) {                        // AM
+                String name = cmd.substring(2);
+                this.am = new AM(name);
+            }
             // TODO:
         }
         else if (ch == 'T') {                                       // T
@@ -230,6 +297,9 @@ public class GerberX2FileReader {
                 attr.getFields().add(ps[i]);
             }
             stmt = attr;
+        }
+        else if (cmd.startsWith("IR")) {                             // IR
+            stmt = new IR(Integer.parseInt(cmd.substring(2)));
         }
         else if (cmd.endsWith("D01")) {                             // D01
             Long[] xyij = dxx(cmd);

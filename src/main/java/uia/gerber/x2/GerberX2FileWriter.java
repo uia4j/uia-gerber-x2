@@ -14,7 +14,9 @@ import uia.gerber.x2.model.FS;
 import uia.gerber.x2.model.G01;
 import uia.gerber.x2.model.G04Comment;
 import uia.gerber.x2.model.G75;
+import uia.gerber.x2.model.IR;
 import uia.gerber.x2.model.MO;
+import uia.gerber.x2.model.MO.UnitType;
 
 /**
  * The Gerber X2 layout file writer.
@@ -22,6 +24,7 @@ import uia.gerber.x2.model.MO;
  * @author Kyle K. Lin
  *
  */
+@SuppressWarnings("deprecation")
 public class GerberX2FileWriter {
 
     private final OutputStream out;
@@ -45,6 +48,8 @@ public class GerberX2FileWriter {
     private GerberX2FileWriterDebugger debugger;
 
     private boolean dark;
+
+    private int rotate;
 
     /**
      * The constructor.
@@ -137,6 +142,29 @@ public class GerberX2FileWriter {
     public GerberX2FileWriter fs(int intDigi, int decDigi) {
         if (this.step == 0) {
             this.fsValuer = new Valuer(intDigi, decDigi);
+        }
+        return this;
+    }
+
+    /**
+     * The method rotates full image using IR command which has been deprecated from 2012.
+     *
+     * @param rotate one of 0, 90, 180, 270.
+     * @return This writer.
+     */
+    @Deprecated
+    public GerberX2FileWriter rotate(int rotate) {
+        if (rotate == 0) {
+            this.rotate = 0;
+        }
+        else if (rotate == 90) {
+            this.rotate = 90;
+        }
+        else if (rotate == 180) {
+            this.rotate = 180;
+        }
+        else if (rotate == 270) {
+            this.rotate = 270;
         }
         return this;
     }
@@ -249,7 +277,7 @@ public class GerberX2FileWriter {
      * @return
      * @throws IOException
      */
-    public int start(int intDigi, int decDigi) throws IOException {
+    public int start(int intDigi, int decDigi, UnitType unit) throws IOException {
         if (this.fsValuer != null) {
             return 1;
         }
@@ -260,6 +288,12 @@ public class GerberX2FileWriter {
         open();
         this.fsValuer = new Valuer(intDigi, decDigi);
         new FS(this.fsValuer).write(this.out);
+        if (unit != null) {
+            new MO(this.unit).write(this.out);
+        }
+        if (this.rotate != 0) {
+            new IR(this.rotate).write(this.out);
+        }
         return 0;
     }
 
@@ -296,6 +330,9 @@ public class GerberX2FileWriter {
         }
         if (fs) {
             new FS(this.fsValuer).write(this.out);
+            if (this.rotate != 0) {
+                new IR(this.rotate).write(this.out);
+            }
         }
         if (mo) {
             new MO(this.unit).write(this.out);

@@ -2,10 +2,12 @@ package uia.gerber.x2;
 
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
+import uia.gerber.x2.model.AM;
 import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.IAD;
 import uia.gerber.x2.model.LNLayer;
 
+@SuppressWarnings("deprecation")
 public interface GerberX2FileReaderListener {
 
     /**
@@ -22,8 +24,9 @@ public interface GerberX2FileReaderListener {
      *
      * @param lineNo The line no.
      * @param cmd The command.
+     * @param ex The exception, maybe null.
      */
-    public default void error(int lineNo, String cmd) {
+    public default void error(int lineNo, String cmd, Exception ex) {
     }
 
     /**
@@ -74,6 +77,15 @@ public interface GerberX2FileReaderListener {
      * @param blcok The total commands in the block
      */
     public default void exitAB(int lineNo, ABBlock blcok) {
+    }
+
+    /**
+     * Enters into a macro(AM).
+     *
+     * @param lineNo The line no.
+     * @param ab The AM statement.
+     */
+    public default void enterAM(int lineNo, AM am) {
     }
 
     /**

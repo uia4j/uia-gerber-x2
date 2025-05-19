@@ -62,6 +62,10 @@ public class Valuer {
         return this.decDigi;
     }
 
+    public boolean same(Valuer other) {
+        return this.intDigi == other.intDigi && this.decDigi == other.decDigi;
+    }
+
     /**
      * Parses the text to a number.
      *
@@ -90,14 +94,13 @@ public class Valuer {
             return null;
         }
         if (v < 0) {
-            long i = (-v) / this.scale;
-            long d = (-v) % this.scale;
-            return new BigDecimal(i + "." + d).multiply(BigDecimal.valueOf(-1));
+            return BigDecimal.valueOf((-1.0d * v) / this.scale)
+                    .setScale(this.decDigi, BigDecimal.ROUND_HALF_UP)
+                    .multiply(BigDecimal.valueOf(-1));
         }
         else {
-            long i = v / this.scale;
-            long d = v % this.scale;
-            return new BigDecimal(i + "." + d);
+            return BigDecimal.valueOf((1.0d * v) / this.scale)
+                    .setScale(this.decDigi, BigDecimal.ROUND_HALF_UP);
         }
     }
 

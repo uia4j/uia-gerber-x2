@@ -16,6 +16,8 @@ public class AD implements IAD {
 
     private List<ATTR> attributes;
 
+    private int no;
+
     private String dCode;
 
     private String template;
@@ -27,11 +29,12 @@ public class AD implements IAD {
         this.xs = new ArrayList<>();
     }
 
-    public AD(int dCode, String template) {
-        if (dCode < 10 || dCode > 999) {
+    public AD(int no, String template) {
+        if (no < 10 || no > 999) {
             throw new IllegalArgumentException("number out of range [10..999]");
         }
-        this.dCode = String.format("D%03d", dCode);
+        this.no = no;
+        this.dCode = String.format("D%03d", no);
         this.template = template;
         this.attributes = new ArrayList<>();
         this.xs = new ArrayList<>();
@@ -40,6 +43,11 @@ public class AD implements IAD {
     @Override
     public String getCmd() {
         return "AD";
+    }
+
+    @Override
+    public int getNo() {
+        return this.no;
     }
 
     @Override

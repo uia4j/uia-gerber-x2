@@ -105,6 +105,10 @@ public class CommonGraphics implements GerberX2Graphics {
         return this;
     }
 
+    public boolean containsDnn(int dCode) {
+        return this.writer.contains(dCode);
+    }
+
     public CommonGraphics defineSquare(int dCode, BigDecimal moWidth) throws IOException {
         if (!this.writer.addDnn(dCode)) {
             throw new IOException(String.format("ADD%03d already exists", dCode));
@@ -236,13 +240,43 @@ public class CommonGraphics implements GerberX2Graphics {
         if (dark && !this.writer.isDark()) {
             // dark
             new LP("D").write(this.out);
-            this.writer.setDark(true);
         }
         else if (!dark && this.writer.isDark()) {
             // clear
             new LP("C").write(this.out);
-            this.writer.setDark(false);
         }
+        this.writer.setDark(dark);
+        return this;
+    }
+
+    /**
+    *
+    * @param dark
+    * @return This graphics object.
+    * @throws IOException Failed to write to the output stream.
+    */
+    public CommonGraphics loadPolarity(boolean dark, boolean always) throws IOException {
+        endLast();
+        if (always) {
+            if (dark) {
+                new LP("D").write(this.out);
+            }
+            else {
+                // clear
+                new LP("C").write(this.out);
+            }
+        }
+        else {
+            if (dark && !this.writer.isDark()) {
+                // dark
+                new LP("D").write(this.out);
+            }
+            else if (!dark && this.writer.isDark()) {
+                // clear
+                new LP("C").write(this.out);
+            }
+        }
+        this.writer.setDark(dark);
         return this;
     }
 
@@ -427,7 +461,7 @@ public class CommonGraphics implements GerberX2Graphics {
     }
 
     /**
-     * Flashes an object at a specific coordination using MO unit.
+     * Flashes an object at a specific coordination using MO unit(mm or inch).
      *
      * @param moX coordination x with MO unit.
      * @param moY coordination y with MO unit.
@@ -519,7 +553,7 @@ public class CommonGraphics implements GerberX2Graphics {
      * @throws IOException Failed to write to the output stream.
      */
     public TextGraphics createText() throws IOException {
-        return createText("Dialog");
+        return createText("Arial");
     }
 
     /**
@@ -531,7 +565,7 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public TextGraphics createText(String fontName) throws IOException {
         endLast();
-        TextGraphics gs = new TextGraphics(this.out, fontName);
+        TextGraphics gs = new TextGraphics(this, fontName);
         this.lastGS = gs;
         return gs;
     }
