@@ -11,6 +11,7 @@ import uia.gerber.x2.model.FS;
 import uia.gerber.x2.model.IAD;
 import uia.gerber.x2.model.LP;
 import uia.gerber.x2.model.M02;
+import uia.gerber.x2.model.MO;
 import uia.gerber.x2.model.MO.UnitType;
 
 public class GerberX2FileAppender implements GerberX2FileReaderListener {
@@ -23,11 +24,13 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
 
     private Integer decDigi;
 
-    private Valuer origFS;
-
     private boolean scale;
 
     private boolean dark;
+
+    private boolean append;
+
+    private Valuer origFS;
 
     public GerberX2FileAppender(String newPathname) throws IOException {
         this(new FileOutputStream(new File(newPathname), false));
@@ -37,6 +40,8 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
         this.writer = new GerberX2FileWriter(newOut);
         this.intDigi = null;
         this.decDigi = null;
+        this.append = false;
+        this.scale = false;
         this.writer.open();
         this.cg = this.writer.getGraphics();
     }
@@ -49,6 +54,8 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
         this.writer = new GerberX2FileWriter(newOut);
         this.intDigi = newIntDigi;
         this.decDigi = newDecDigi;
+        this.append = false;
+        this.scale = false;
         this.writer.open();
         this.cg = this.writer.getGraphics();
     }
@@ -77,6 +84,17 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
         return this.writer;
     }
 
+    public GerberX2FileWriter append(InputStream origPathname) throws IOException {
+        if (origPathname == null) {
+            return null;
+        }
+
+        this.append = true;
+        GerberX2FileReader reader = new GerberX2FileReader(this);
+        reader.run(origPathname);
+        return this.writer;
+    }
+
     @Override
     public void unknown(int lineNo, String cmd) {
         System.out.printf("[U]%6d - %s\n", lineNo, cmd);
@@ -96,20 +114,29 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
             }
 
             if (stmt instanceof FS) {
-                this.origFS = ((FS) stmt).valuer();
-                if (this.intDigi == null || this.decDigi == null) {
-                    this.intDigi = this.origFS.intDigi();
-                    this.decDigi = this.origFS.decDigi();
+                if (!this.append) {
+                    this.origFS = ((FS) stmt).valuer();
+                    if (this.intDigi == null || this.decDigi == null) {
+                        this.intDigi = this.origFS.intDigi();
+                        this.decDigi = this.origFS.decDigi();
+                    }
+                    this.writer.start(this.intDigi, this.decDigi, null);
+                    this.scale = !this.origFS.same(this.writer.fs());
+                }
+                else {
+                    this.origFS = ((FS) stmt).valuer();
+                    this.scale = !this.origFS.same(this.writer.fs());
                 }
 
-                this.writer.start(this.intDigi, this.decDigi, null);
-                this.scale = !this.origFS.same(this.writer.fs());
             }
             else if (stmt instanceof LP) {
                 this.dark = ((LP) stmt).isDark();
             }
             else if (stmt instanceof IAD) {
                 this.writer.addDnn(((IAD) stmt).getNo());
+            }
+            else if (stmt instanceof MO) {
+                this.cg.write(stmt);
             }
             else {
                 if (this.scale) {

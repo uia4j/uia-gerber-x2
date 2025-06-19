@@ -52,6 +52,8 @@ public class GerberX2FileReader {
 
     private FS fs;
 
+    private MO mo;
+
     private LNLayer layer;
 
     public GerberX2FileReader() {
@@ -61,6 +63,33 @@ public class GerberX2FileReader {
 
     public GerberX2FileReader(GerberX2FileReaderListener listener) {
         this.listener = listener;
+    }
+
+    public synchronized FormatMode findFormatMode(String filePath) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            return findFormatMode(fis);
+        }
+    }
+
+    public synchronized FormatMode findFormatMode(InputStream fis) throws IOException {
+        this.lineNo = 0;
+        this.ab = null;
+        this.g36 = null;
+        this.contour = null;
+        this.fs = null;
+        this.layer = null;
+
+        // remark:
+        //  Files.lines() failed
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, "utf-8"))) {
+            for (String line = null; (line = br.readLine()) != null;) {
+                handle(line);
+                if (this.fs != null && this.mo != null) {
+                    return new FormatMode(this.fs, this.mo);
+                }
+            }
+        }
+        return null;
     }
 
     public synchronized void run(String filePath) throws IOException {
@@ -327,7 +356,8 @@ public class GerberX2FileReader {
             stmt = new M02();
         }
         else if (cmd.startsWith("MO")) {                            // MO
-            stmt = new MO(UnitType.valueOf(cmd.substring(2)));
+            this.mo = new MO(UnitType.valueOf(cmd.substring(2)));
+            stmt = this.mo;
         }
         else if (cmd.startsWith("FS")) {                            // FS
             Integer[] xy = fs(cmd);
@@ -413,5 +443,17 @@ public class GerberX2FileReader {
             }
         }
         return result;
+    }
+
+    public static class FormatMode {
+
+        public final FS format;
+
+        public final MO mode;
+
+        public FormatMode(FS fs, MO mode) {
+            this.format = fs;
+            this.mode = mode;
+        }
     }
 }

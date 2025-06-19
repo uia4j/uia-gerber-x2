@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import uia.gerber.x2.GerberX2FileReader.FormatMode;
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.G36Region;
@@ -17,6 +18,10 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
     public void test() throws IOException {
         GerberX2FileReader r = new GerberX2FileReader(this);
         r.run("samples/plp/ML1.gbr");
+
+        FormatMode fm = r.findFormatMode("samples/plp/ML1.gbr");
+        System.out.println(fm.format.valuer());
+        System.out.println(fm.mode.getUnit());
     }
 
     @Test

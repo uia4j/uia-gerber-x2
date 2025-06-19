@@ -148,4 +148,9 @@ public class Valuer {
         }
         return value.multiply(BigDecimal.valueOf(this.scale)).longValue();
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s,%s", this.intDigi, this.decDigi);
+    }
 }
