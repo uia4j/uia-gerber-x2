@@ -391,6 +391,19 @@ public class GerberX2FileWriterTest {
     }
 
     @Test
+    public void testC() throws IOException {
+        GerberX2FileWriter writer = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerberC.gbr"), false))
+                .fs(2, 6);
+
+        writer.start();
+        writer.getGraphics()
+                .defineCircle(10, new BigDecimal("0.01"))
+                .dnn(10)
+                .circle(writer.xy(10), writer.xy(0), writer.xy(100));
+        writer.close();
+    }
+
+    @Test
     public void testScale() throws IOException {
         GerberX2FileReader r = new GerberX2FileReader(new GerberX2Rescale("samples/gerberScaled.gbr", 4, 4));
         r.run("samples/gerber2.gbr");

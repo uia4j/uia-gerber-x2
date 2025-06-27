@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import uia.gerber.x2.GerberX2FileReader.Cmder;
 import uia.gerber.x2.builder.CommonGraphics;
 import uia.gerber.x2.model.FS;
 import uia.gerber.x2.model.IAD;
@@ -84,6 +85,18 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
         return this.writer;
     }
 
+    public GerberX2FileWriter read(InputStream origPathname, Cmder cmder) throws IOException {
+        if (origPathname == null) {
+            // for test only
+            this.writer.start(3, 6, UnitType.MM);
+        }
+        else {
+            GerberX2FileReader reader = new GerberX2FileReader(this);
+            reader.run(origPathname, cmder);
+        }
+        return this.writer;
+    }
+
     public GerberX2FileWriter append(InputStream origPathname) throws IOException {
         if (origPathname == null) {
             return null;
@@ -92,6 +105,17 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
         this.append = true;
         GerberX2FileReader reader = new GerberX2FileReader(this);
         reader.run(origPathname);
+        return this.writer;
+    }
+
+    public GerberX2FileWriter append(InputStream origPathname, Cmder cmder) throws IOException {
+        if (origPathname == null) {
+            return null;
+        }
+
+        this.append = true;
+        GerberX2FileReader reader = new GerberX2FileReader(this);
+        reader.run(origPathname, cmder);
         return this.writer;
     }
 

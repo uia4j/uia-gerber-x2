@@ -118,6 +118,36 @@ public class GerberX2FileReader {
         }
     }
 
+    public synchronized boolean run(InputStream fis, Cmder cmder) throws IOException {
+        if (cmder == null) {
+            run(fis);
+            return true;
+        }
+
+        this.lineNo = 0;
+        this.ab = null;
+        this.g36 = null;
+        this.contour = null;
+        this.fs = null;
+        this.layer = null;
+
+        // remark:
+        //  Files.lines() failed
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, "utf-8"))) {
+            for (String line = null; (line = br.readLine()) != null;) {
+                handle(line);
+                if (cmder.cancel()) {
+                    return false;
+                }
+            }
+        }
+        if (this.listener != null) {
+            this.listener.eof();
+        }
+
+        return true;
+    }
+
     private void handle(String line) {
         this.lineNo++;
         int len = line.length();
@@ -443,6 +473,11 @@ public class GerberX2FileReader {
             }
         }
         return result;
+    }
+
+    public static interface Cmder {
+
+        public boolean cancel();
     }
 
     public static class FormatMode {

@@ -356,6 +356,11 @@ public class CommonGraphics implements GerberX2Graphics {
         return this;
     }
 
+    public CommonGraphics circle(Long fsX, Long fsY, Long fsR) throws IOException {
+        move(fsX + fsR, fsY);
+        return ccwArc(fsX + fsR, fsY, -fsR, 0L);
+    }
+
     /**
      *
      * @param fsX coordination x with FS format.
@@ -367,13 +372,10 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics cwArc(Long fsX, Long fsY, Long fsI, Long fsJ) throws IOException {
         endLast();
-        if (this.lastState == 1) {
+        if (this.lastState != 2) {
             new G02().write(this.out);
         }
-        else if (this.lastState == 3) {
-            new G02().write(this.out);
-        }
-        new D01Plot(vx(fsX), vy(fsY), vx(fsI), vy(fsJ)).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), fsI, fsJ).write(this.out);
         apply(fsX, fsY);
         this.lastState = 2;
         return this;
@@ -390,13 +392,10 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics ccwArc(Long fsX, Long fsY, Long fsI, Long fsJ) throws IOException {
         endLast();
-        if (this.lastState == 1) {
+        if (this.lastState != 3) {
             new G03().write(this.out);
         }
-        else if (this.lastState == 2) {
-            new G03().write(this.out);
-        }
-        new D01Plot(vx(fsX), vy(fsY), vx(fsI), vy(fsJ)).write(this.out);
+        new D01Plot(vx(fsX), vy(fsY), fsI, fsJ).write(this.out);
         apply(fsX, fsY);
         this.lastState = 3;
         return this;
