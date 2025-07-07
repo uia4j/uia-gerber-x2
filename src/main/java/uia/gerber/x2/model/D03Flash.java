@@ -3,9 +3,6 @@ package uia.gerber.x2.model;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.antlr.v4.runtime.Token;
-
-import uia.gerber.x2.TokenUtils;
 import uia.gerber.x2.Valuer;
 
 /**
@@ -26,11 +23,6 @@ public class D03Flash implements IOp {
     public D03Flash(Long fsX, Long fsY) {
         this.x = fsX;
         this.y = fsY;
-    }
-
-    public D03Flash(Token x, Token y) {
-        this.x = TokenUtils.parseLong(x);
-        this.y = TokenUtils.parseLong(y);
     }
 
     @Override

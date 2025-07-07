@@ -3,9 +3,6 @@ package uia.gerber.x2.model;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.antlr.v4.runtime.Token;
-
-import uia.gerber.x2.TokenUtils;
 import uia.gerber.x2.Valuer;
 
 /**
@@ -28,12 +25,6 @@ public class D02Move implements IOp {
     public D02Move(Long fsX, Long fsY) {
         this.x = fsX;
         this.y = fsY;
-    }
-
-    public D02Move(Token g, Token x, Token y) {
-        this.g = g == null ? null : g.getText();
-        this.x = x == null ? null : TokenUtils.parseLong(x);
-        this.y = y == null ? null : TokenUtils.parseLong(y);
     }
 
     @Override

@@ -5,10 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.Token;
-
 import uia.gerber.x2.GerberX2Statement;
-import uia.gerber.x2.TokenUtils;
 
 /**
  * SR
@@ -33,14 +30,6 @@ public class SR implements GerberX2Statement {
         this.y = y;
         this.i = i;
         this.j = j;
-        this.stmts = new ArrayList<>();
-    }
-
-    public SR(Token x, Token y, Token i, Token j) {
-        this.x = TokenUtils.parseInt(x);
-        this.y = TokenUtils.parseInt(y);
-        this.i = TokenUtils.parseLong(i);
-        this.j = TokenUtils.parseLong(j);
         this.stmts = new ArrayList<>();
     }
 

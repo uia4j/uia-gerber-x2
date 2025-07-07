@@ -3,9 +3,6 @@ package uia.gerber.x2.model;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.antlr.v4.runtime.Token;
-
-import uia.gerber.x2.TokenUtils;
 import uia.gerber.x2.Valuer;
 
 /**
@@ -71,23 +68,6 @@ public class D01Plot implements IOp, IG36Stmt {
         this.y = fsY;
         this.i = fsI;
         this.j = fsJ;
-    }
-
-    /**
-     * The plotting constructor.
-     *
-     * @param g
-     * @param x
-     * @param y
-     * @param i
-     * @param j
-     */
-    public D01Plot(Token g, Token x, Token y, Token i, Token j) {
-        this.g = g == null ? null : g.getText();
-        this.x = x == null ? null : TokenUtils.parseLong(x);
-        this.y = y == null ? null : TokenUtils.parseLong(y);
-        this.i = i == null ? null : TokenUtils.parseLong(i);
-        this.j = j == null ? null : TokenUtils.parseLong(j);
     }
 
     @Override

@@ -3,8 +3,6 @@ package uia.gerber.x2.model;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.antlr.v4.runtime.Token;
-
 import uia.gerber.x2.GerberX2Statement;
 
 /**
@@ -26,10 +24,6 @@ public class Dnn implements GerberX2Statement {
             throw new IllegalArgumentException("d" + dCode + " out of range [10..999]");
         }
         this.name = String.format("D%03d", dCode);
-    }
-
-    public Dnn(Token t) {
-        this.name = t.getText();
     }
 
     @Override
