@@ -39,4 +39,9 @@ public class MO implements GerberX2Statement {
     public void write(OutputStream out) throws IOException {
         out.write(("%MO" + this.unit + "*%\n").getBytes());
     }
+
+    @Override
+    public String toString() {
+        return "MO" + this.unit;
+    }
 }

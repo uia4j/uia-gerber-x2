@@ -39,4 +39,9 @@ public class AB implements IAD {
     public void write(OutputStream out) throws IOException {
         out.write(String.format("%%AB%S*%%\n", this.dnn).getBytes());
     }
+
+    @Override
+    public String toString() {
+        return String.format("AB%s", this.dnn);
+    }
 }

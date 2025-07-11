@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import uia.gerber.x2.Valuer;
 
 /**
- * D01 creates a straight-line segment or a circular segment by plotting from the current point to the operation coordinates.
+ * D01(Operation) creates a straight-line segment or a circular segment by plotting from the current point to the operation coordinates.
  *
  * @author Kyle K. Lin
  *
@@ -27,7 +27,7 @@ public class D01Plot implements IOp, IG36Stmt {
     }
 
     /**
-     * The plotting constructor.
+     * The OP constructor.
      *
      * @param fsX
      * @param fsY
@@ -39,7 +39,7 @@ public class D01Plot implements IOp, IG36Stmt {
     }
 
     /**
-     * The plotting constructor.
+     * The OP constructor.
      *
      * @param fsX
      * @param fsY
@@ -54,7 +54,7 @@ public class D01Plot implements IOp, IG36Stmt {
     }
 
     /**
-     * The plotting constructor.
+     * The OP constructor.
      *
      * @param g
      * @param x
@@ -133,5 +133,10 @@ public class D01Plot implements IOp, IG36Stmt {
             out.write(String.format("J%s", this.j).getBytes());
         }
         out.write("D01*\n".getBytes());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("D01(%s,%s,%s,%s)", this.x, this.y, this.i, this.j);
     }
 }

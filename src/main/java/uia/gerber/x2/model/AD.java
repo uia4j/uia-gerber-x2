@@ -96,4 +96,9 @@ public class AD implements IAD {
         }
         out.write("*%\n".getBytes());
     }
+
+    @Override
+    public String toString() {
+        return String.format("AD%s", this.dCode);
+    }
 }

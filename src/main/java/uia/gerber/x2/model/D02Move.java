@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import uia.gerber.x2.Valuer;
 
 /**
- * D02 moves the current point to the operation coordinates. No graphical object is generated.
+ * D02(Operation) moves the current point to the operation coordinates. No graphical object is generated.
  *
  * @author Kyle K. Lin
  *
@@ -19,9 +19,19 @@ public class D02Move implements IOp {
 
     private Long y;
 
+    /**
+     * The OP constructor.
+     *
+     */
     public D02Move() {
     }
 
+    /**
+     * The OP constructor.
+     *
+     * @param fsX
+     * @param fsY
+     */
     public D02Move(Long fsX, Long fsY) {
         this.x = fsX;
         this.y = fsY;
@@ -66,5 +76,10 @@ public class D02Move implements IOp {
             out.write(String.format("Y%s", this.y).getBytes());
         }
         out.write("D02*\n".getBytes());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("D02(%s,%s)", this.x, this.y);
     }
 }

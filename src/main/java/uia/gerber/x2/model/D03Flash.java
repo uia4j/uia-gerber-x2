@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import uia.gerber.x2.Valuer;
 
 /**
- * D03 creates a flash object by replicating (flashing) the current aperture at the operation coordinates.
+ * D03(Operation) creates a flash object by replicating (flashing) the current aperture at the operation coordinates.
  *
  * @author Kyle K. Lin
  *
@@ -20,6 +20,12 @@ public class D03Flash implements IOp {
     public D03Flash() {
     }
 
+    /**
+     * The OP constructor.
+     *
+     * @param fsX
+     * @param fsY
+     */
     public D03Flash(Long fsX, Long fsY) {
         this.x = fsX;
         this.y = fsY;
@@ -61,5 +67,10 @@ public class D03Flash implements IOp {
             out.write(String.format("Y%s", this.y).getBytes());
         }
         out.write("D03*\n".getBytes());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("D03(%s,%s)", this.x, this.y);
     }
 }

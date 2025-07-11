@@ -32,4 +32,9 @@ public class G04Comment implements GerberX2Statement {
     public void write(OutputStream out) throws IOException {
         out.write(String.format("G04%s*\n", this.comment == null ? "" : this.comment).getBytes());
     }
+
+    @Override
+    public String toString() {
+        return String.format("G04%s", this.comment == null ? "" : this.comment);
+    }
 }

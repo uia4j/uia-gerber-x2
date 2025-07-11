@@ -46,4 +46,9 @@ public class FS implements GerberX2Statement {
         out.write(String.format("%%FSLAX%sY%s*%%\n", this.valuer.coordDigits(), this.valuer.coordDigits()).getBytes());
     }
 
+    @Override
+    public String toString() {
+        return String.format("FSLAX%sY%s", this.valuer.coordDigits(), this.valuer.coordDigits());
+    }
+
 }

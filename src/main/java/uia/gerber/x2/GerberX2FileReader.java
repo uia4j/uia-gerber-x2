@@ -28,6 +28,8 @@ import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.G37;
 import uia.gerber.x2.model.G75;
 import uia.gerber.x2.model.IAD;
+import uia.gerber.x2.model.IOp;
+import uia.gerber.x2.model.IPlot;
 import uia.gerber.x2.model.IR;
 import uia.gerber.x2.model.LNLayer;
 import uia.gerber.x2.model.LP;
@@ -225,6 +227,7 @@ public class GerberX2FileReader {
                 if (this.contour != null) {
                     this.contour.plot((G01) stmt);                  // G36, G01
                 }
+                this.listener.plot(this.lineNo, (IPlot) stmt);
                 if (cmd.length() > 3) {
                     next = cmd.substring(3);
                 }
@@ -234,6 +237,7 @@ public class GerberX2FileReader {
                 if (this.contour != null) {
                     this.contour.plot((G02) stmt);                  // G36, G02
                 }
+                this.listener.plot(this.lineNo, (IPlot) stmt);
                 if (cmd.length() > 3) {
                     next = cmd.substring(3);
                 }
@@ -243,6 +247,7 @@ public class GerberX2FileReader {
                 if (this.contour != null) {
                     this.contour.plot((G03) stmt);                  // G36, G03
                 }
+                this.listener.plot(this.lineNo, (IPlot) stmt);
                 if (cmd.length() > 3) {
                     next = cmd.substring(3);
                 }
@@ -287,9 +292,9 @@ public class GerberX2FileReader {
         }
         else if (ch == 'A') {                                       // A
             if (cmd.startsWith("AB")) {                             // AB
-                String dxx = cmd.substring(2);
-                stmt = new AB(dxx);
                 if (cmd.length() > 2) {
+                    String dxx = cmd.substring(2);
+                    stmt = new AB(dxx);
                     this.ab = new ABBlock(dxx);
                     this.listener.apertureDefined(this.lineNo, (IAD) stmt);
                     this.listener.enterAB(this.lineNo, (AB) stmt);
@@ -301,24 +306,10 @@ public class GerberX2FileReader {
             }
             else if (cmd.startsWith("ADD")) {                       // ADD
                 String[] shapeParam = cmd.split("[,X]");
-                String dxx = shapeParam[0].substring(3, shapeParam[0].length() - 1);
 
-                int nCode = 0;
-                char sn = ' ';
-                if (dxx.length() > 2) {
-                    try {
-                        nCode = Integer.parseInt(dxx.substring(0, 3));
-                        sn = shapeParam[0].charAt(3);
-                    }
-                    catch (Exception ex) {
-                        nCode = Integer.parseInt(dxx.substring(0, 2));
-                        sn = shapeParam[0].charAt(2);
-                    }
-                }
-                else {
-                    nCode = Integer.parseInt(dxx);
-                    sn = shapeParam[0].charAt(2);
-                }
+                String dxx = shapeParam[0].substring(3, shapeParam[0].length() - 1);
+                int nCode = Integer.parseInt(dxx);
+                char sn = shapeParam[0].charAt(shapeParam[0].length() - 1);
 
                 if (sn == 'C') {
                     stmt = new ADCircle(
@@ -366,6 +357,7 @@ public class GerberX2FileReader {
             if (this.contour != null) {
                 this.contour.plot((D01Plot) stmt);                  // G36, D01
             }
+            this.listener.op(this.lineNo, (IOp) stmt);
         }
         else if (cmd.endsWith("D02")) {                             // D02
             Long[] xy = dxx(cmd);
@@ -373,10 +365,12 @@ public class GerberX2FileReader {
             if (this.g36 != null) {
                 this.contour = this.g36.create((D02Move) stmt);     // G36, D02, create a new contour object.
             }
+            this.listener.op(this.lineNo, (IOp) stmt);
         }
         else if (cmd.endsWith("D03")) {                             // D03
             Long[] xy = dxx(cmd);
             stmt = new D03Flash(xy[0], xy[1]);
+            this.listener.op(this.lineNo, (IOp) stmt);
         }
         else if (cmd.equals("M02")) {                               // M02
             if (this.layer != null) {
@@ -388,10 +382,12 @@ public class GerberX2FileReader {
         else if (cmd.startsWith("MO")) {                            // MO
             this.mo = new MO(UnitType.valueOf(cmd.substring(2)));
             stmt = this.mo;
+            this.listener.mo(this.lineNo, this.mo);
         }
         else if (cmd.startsWith("FS")) {                            // FS
             Integer[] xy = fs(cmd);
             this.fs = new FS(xy[0] / 10, xy[0] % 10);
+            this.listener.fs(this.lineNo, this.fs);
             stmt = this.fs;
         }
 

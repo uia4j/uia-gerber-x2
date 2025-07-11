@@ -38,4 +38,9 @@ public class LP implements ILoad {
     public void write(OutputStream out) throws IOException {
         out.write(("%LP" + this.polarity + "*%\n").getBytes());
     }
+
+    @Override
+    public String toString() {
+        return "LP" + this.polarity;
+    }
 }

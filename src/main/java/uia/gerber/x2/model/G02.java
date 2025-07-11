@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * @author Kyle K. Lin
  *
  */
-public class G02 implements IState, IG36Stmt {
+public class G02 implements IPlot, IG36Stmt {
 
     private boolean std;
 
@@ -34,6 +34,11 @@ public class G02 implements IState, IG36Stmt {
         else {
             out.write("G02".getBytes());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "G02";
     }
 
 }

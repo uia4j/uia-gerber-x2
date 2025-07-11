@@ -20,4 +20,9 @@ public class G37 implements IState {
         out.write("G37*\n".getBytes());
     }
 
+    @Override
+    public String toString() {
+        return "G37";
+    }
+
 }

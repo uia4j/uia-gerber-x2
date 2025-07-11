@@ -3,9 +3,13 @@ package uia.gerber.x2;
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.AM;
+import uia.gerber.x2.model.FS;
 import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.IAD;
+import uia.gerber.x2.model.IOp;
+import uia.gerber.x2.model.IPlot;
 import uia.gerber.x2.model.LNLayer;
+import uia.gerber.x2.model.MO;
 
 @SuppressWarnings("deprecation")
 public interface GerberX2FileReaderListener {
@@ -121,5 +125,17 @@ public interface GerberX2FileReaderListener {
      * @param layer The layer.
      */
     public default void exitLayer(int lineNo, LNLayer layer) {
+    }
+
+    public default void op(int lineNo, IOp stmt) {
+    }
+
+    public default void plot(int lineNo, IPlot stmt) {
+    }
+
+    public default void fs(int lineNo, FS fs) {
+    }
+
+    public default void mo(int lineNo, MO mo) {
     }
 }

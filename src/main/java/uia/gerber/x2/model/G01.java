@@ -11,7 +11,7 @@ import uia.gerber.x2.GerberX2Statement;
  * @author Kyle K. Lin
  *
  */
-public class G01 implements IState, IG36Stmt {
+public class G01 implements IPlot, IG36Stmt {
 
     private boolean std;
 
@@ -40,6 +40,11 @@ public class G01 implements IState, IG36Stmt {
         else {
             out.write("G01".getBytes());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "G01";
     }
 
 }

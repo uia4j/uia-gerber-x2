@@ -22,4 +22,9 @@ public class G75 implements IState {
         out.write("G75*\n".getBytes());
     }
 
+    @Override
+    public String toString() {
+        return "G75";
+    }
+
 }

@@ -20,4 +20,9 @@ public class M02 implements IState {
         out.write("M02*\n".getBytes());
     }
 
+    @Override
+    public String toString() {
+        return "M02";
+    }
+
 }
