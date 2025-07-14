@@ -271,6 +271,27 @@ public class GerberX2FileReader {
                 stmt = new G75();
             }
         }
+        else if (cmd.endsWith("D01")) {                             // D01
+            Long[] xyij = dxx(cmd);
+            stmt = new D01Plot(xyij[0], xyij[1], xyij[2], xyij[3]);
+            if (this.contour != null) {
+                this.contour.plot((D01Plot) stmt);                  // G36, D01
+            }
+            this.listener.op(this.lineNo, (IOp) stmt);
+        }
+        else if (cmd.endsWith("D02")) {                             // D02
+            Long[] xy = dxx(cmd);
+            stmt = new D02Move(xy[0], xy[1]);
+            if (this.g36 != null) {
+                this.contour = this.g36.create((D02Move) stmt);     // G36, D02, create a new contour object.
+            }
+            this.listener.op(this.lineNo, (IOp) stmt);
+        }
+        else if (cmd.endsWith("D03")) {                             // D03
+            Long[] xy = dxx(cmd);
+            stmt = new D03Flash(xy[0], xy[1]);
+            this.listener.op(this.lineNo, (IOp) stmt);
+        }
         else if (ch == 'D') {                                       // D
             stmt = new Dnn(Integer.parseInt(cmd.substring(1)), false);
         }
@@ -350,27 +371,6 @@ public class GerberX2FileReader {
         }
         else if (cmd.startsWith("IR")) {                             // IR
             stmt = new IR(Integer.parseInt(cmd.substring(2)));
-        }
-        else if (cmd.endsWith("D01")) {                             // D01
-            Long[] xyij = dxx(cmd);
-            stmt = new D01Plot(xyij[0], xyij[1], xyij[2], xyij[3]);
-            if (this.contour != null) {
-                this.contour.plot((D01Plot) stmt);                  // G36, D01
-            }
-            this.listener.op(this.lineNo, (IOp) stmt);
-        }
-        else if (cmd.endsWith("D02")) {                             // D02
-            Long[] xy = dxx(cmd);
-            stmt = new D02Move(xy[0], xy[1]);
-            if (this.g36 != null) {
-                this.contour = this.g36.create((D02Move) stmt);     // G36, D02, create a new contour object.
-            }
-            this.listener.op(this.lineNo, (IOp) stmt);
-        }
-        else if (cmd.endsWith("D03")) {                             // D03
-            Long[] xy = dxx(cmd);
-            stmt = new D03Flash(xy[0], xy[1]);
-            this.listener.op(this.lineNo, (IOp) stmt);
         }
         else if (cmd.equals("M02")) {                               // M02
             if (this.layer != null) {
