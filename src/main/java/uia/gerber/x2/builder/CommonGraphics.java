@@ -28,6 +28,7 @@ import uia.gerber.x2.model.LR;
  * @author Kyle K. Lin
  *
  */
+@SuppressWarnings("deprecation")
 public class CommonGraphics implements GerberX2Graphics {
 
     GerberX2FileWriter writer;
@@ -37,10 +38,6 @@ public class CommonGraphics implements GerberX2Graphics {
     int lastState;
 
     GerberX2Graphics lastGS;
-
-    private Long lastX;
-
-    private Long lastY;
 
     /**
      * The constructor.
@@ -231,27 +228,18 @@ public class CommonGraphics implements GerberX2Graphics {
 
     /**
      *
-     * @param dark
+     * @param dark Dark or light.
      * @return This graphics object.
      * @throws IOException Failed to write to the output stream.
      */
     public CommonGraphics loadPolarity(boolean dark) throws IOException {
-        endLast();
-        if (dark && !this.writer.isDark()) {
-            // dark
-            new LP("D").write(this.out);
-        }
-        else if (!dark && this.writer.isDark()) {
-            // clear
-            new LP("C").write(this.out);
-        }
-        this.writer.setDark(dark);
-        return this;
+        return loadPolarity(dark, false);
     }
 
     /**
     *
-    * @param dark
+    * @param dark Dark or light.
+    * @param always write into the stream always.
     * @return This graphics object.
     * @throws IOException Failed to write to the output stream.
     */
@@ -318,8 +306,8 @@ public class CommonGraphics implements GerberX2Graphics {
         if (this.lastState != 1) {
             new G01().write(this.out);
         }
-        new D01Plot(vx(fsX), vy(fsY)).write(this.out);
-        apply(fsX, fsY);
+        new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY)).write(this.out);
+        this.writer.apply(fsX, fsY);
         this.lastState = 1;
         return this;
     }
@@ -335,7 +323,7 @@ public class CommonGraphics implements GerberX2Graphics {
             new G01().write(this.out);
         }
         new D01Plot(fsX, null).write(this.out);
-        this.lastX = fsX;
+        this.writer.apply(fsX, null);
         this.lastState = 1;
         return this;
     }
@@ -351,7 +339,7 @@ public class CommonGraphics implements GerberX2Graphics {
             new G01().write(this.out);
         }
         new D01Plot(null, fsY).write(this.out);
-        this.lastY = fsY;
+        this.writer.apply(null, fsY);
         this.lastState = 1;
         return this;
     }
@@ -375,8 +363,8 @@ public class CommonGraphics implements GerberX2Graphics {
         if (this.lastState != 2) {
             new G02().write(this.out);
         }
-        new D01Plot(vx(fsX), vy(fsY), fsI, fsJ).write(this.out);
-        apply(fsX, fsY);
+        new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        this.writer.apply(fsX, fsY);
         this.lastState = 2;
         return this;
     }
@@ -395,8 +383,8 @@ public class CommonGraphics implements GerberX2Graphics {
         if (this.lastState != 3) {
             new G03().write(this.out);
         }
-        new D01Plot(vx(fsX), vy(fsY), fsI, fsJ).write(this.out);
-        apply(fsX, fsY);
+        new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        this.writer.apply(fsX, fsY);
         this.lastState = 3;
         return this;
     }
@@ -412,7 +400,7 @@ public class CommonGraphics implements GerberX2Graphics {
     public CommonGraphics move(Long fsX, Long fsY) throws IOException {
         endLast();
         new D02Move(fsX, fsY).write(this.out);
-        apply(fsX, fsY);
+        this.writer.apply(fsX, fsY);
         return this;
     }
 
@@ -426,7 +414,7 @@ public class CommonGraphics implements GerberX2Graphics {
     public CommonGraphics moveH(Long fsX) throws IOException {
         endLast();
         new D02Move(fsX, null).write(this.out);
-        this.lastX = fsX;
+        this.writer.apply(fsX, null);
         return this;
     }
 
@@ -440,7 +428,7 @@ public class CommonGraphics implements GerberX2Graphics {
     public CommonGraphics moveV(Long fsY) throws IOException {
         endLast();
         new D02Move(null, fsY).write(this.out);
-        this.lastY = fsY;
+        this.writer.apply(null, fsY);
         return this;
     }
 
@@ -454,8 +442,8 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics flash(Long fsX, Long fsY) throws IOException {
         endLast();
-        new D03Flash(vx(fsX), vy(fsY)).write(this.out);
-        apply(fsX, fsY);
+        new D03Flash(this.writer.vx(fsX), this.writer.vy(fsY)).write(this.out);
+        this.writer.apply(fsX, fsY);
         return this;
     }
 
@@ -579,7 +567,7 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public RegionGraphics createRegion(long fsX, long fsY) throws IOException {
         endLast();
-        RegionGraphics gs = new RegionGraphics(fsX, fsY, this.lastState, this.out);
+        RegionGraphics gs = new RegionGraphics(this.writer, fsX, fsY, this.lastState, this.out);
         this.lastGS = gs;
         return gs;
     }
@@ -620,7 +608,6 @@ public class CommonGraphics implements GerberX2Graphics {
             this.lastGS.close();
             this.lastGS = null;
         }
-        this.writer = null;
     }
 
     protected void endLast() throws IOException {
@@ -630,26 +617,4 @@ public class CommonGraphics implements GerberX2Graphics {
             this.lastGS = null;
         }
     }
-
-    private void apply(Long fsX, Long fsY) {
-        if (fsX != null) {
-            this.lastX = fsX;
-        }
-        if (fsY != null) {
-            this.lastY = fsY;
-        }
-    }
-
-    private Long vx(Long fsX) {
-        return this.lastX != null
-                ? fsX == null || this.lastX.longValue() == fsX ? null : fsX
-                : fsX;
-    }
-
-    private Long vy(Long fsY) {
-        return this.lastY != null
-                ? fsY == null || this.lastY.longValue() == fsY ? null : fsY
-                : fsY;
-    }
-
 }

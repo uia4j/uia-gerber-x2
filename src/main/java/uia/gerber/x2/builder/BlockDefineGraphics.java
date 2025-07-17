@@ -12,6 +12,8 @@ import uia.gerber.x2.GerberX2FileWriter;
  */
 public class BlockDefineGraphics extends CommonGraphics {
 
+    private final boolean initDark;
+
     private final int dCode;
 
     /**
@@ -23,6 +25,7 @@ public class BlockDefineGraphics extends CommonGraphics {
      */
     BlockDefineGraphics(int dCode, GerberX2FileWriter writer) throws IOException {
         super(writer);
+        this.initDark = writer.isDark();
         this.dCode = dCode;
         this.out.write(String.format("%%ABD%03d*%%\n", dCode).getBytes());
     }
@@ -49,9 +52,11 @@ public class BlockDefineGraphics extends CommonGraphics {
     @Override
     public void close() throws IOException {
         if (this.out != null) {
+            GerberX2FileWriter writer = this.writer;
             super.close();
             this.out.write("%AB*%\n".getBytes());
             this.out = null;
+            writer.setDark(this.initDark);
         }
     }
 }

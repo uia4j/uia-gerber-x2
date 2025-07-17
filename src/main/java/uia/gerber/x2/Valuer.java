@@ -72,7 +72,7 @@ public class Valuer {
      * <p>Suggest the precision is '46', the '87654321' will be 87.654321.</p>
      *
      * @param text The text to be parsed.
-     * @return The number.
+     * @return The number, mm or inch.
      */
     public BigDecimal in(String text) {
         if (text == null) {
@@ -87,7 +87,7 @@ public class Valuer {
      * <p>Suggest the precision is '46', the 87654321 will be 87.654321.</p>
      *
      * @param v The value to be parsed.
-     * @return The number.
+     * @return The number, mm or inch.
      */
     public BigDecimal in(Long v) {
         if (v == null) {
@@ -109,8 +109,8 @@ public class Valuer {
      *
      * <p>Suggest the precision is '46', the 87 will be '87000000'.</p>
      *
-     * @param value The number.
-     * @return The text.
+     * @param value The number, mm or inch.
+     * @return The scaled number.
      */
     public Long out(Long value) {
         if (value == null) {
@@ -124,8 +124,8 @@ public class Valuer {
      *
      * <p>Suggest the precision is '46', the 87.654321 will be '87654321'.</p>
      *
-     * @param value The number.
-     * @return The text.
+     * @param value The number, mm or inch.
+     * @return The scaled number.
      */
     public Long out(Double value) {
         if (value == null) {
@@ -139,8 +139,8 @@ public class Valuer {
      *
      * <p>Suggest the precision is '46', the 87.654321 will be '87654321'.</p>
      *
-     * @param value The number.
-     * @return The text.
+     * @param value The number, mm or inch.
+     * @return The scaled number.
      */
     public Long out(BigDecimal value) {
         if (value == null) {

@@ -49,6 +49,10 @@ public class GerberX2FileWriter {
 
     private boolean dark;
 
+    private Long lastX;
+
+    private Long lastY;
+
     private int rotate;
 
     /**
@@ -199,7 +203,7 @@ public class GerberX2FileWriter {
     /**
      * Converts the value to FS format.
      *
-     * @param v The value.
+     * @param v The value, mm or inch.
      * @return Value meets FS format.
      */
     public Long xy(long v) {
@@ -209,7 +213,7 @@ public class GerberX2FileWriter {
     /**
      * Converts the value to FS format.
      *
-     * @param v The value.
+     * @param v The value, mm or inch.
      * @return Value meets FS format.
      */
     public Long xy(double v) {
@@ -219,7 +223,7 @@ public class GerberX2FileWriter {
     /**
      * Converts the value to FS format.
      *
-     * @param v The value.
+     * @param v The value, mm or inch.
      * @return Value meets FS format.
      */
     public Long xy(BigDecimal v) {
@@ -387,6 +391,35 @@ public class GerberX2FileWriter {
      */
     public CommonGraphics getGraphics() {
         return this.graphics;
+    }
+
+    public long x() {
+        return this.lastX;
+    }
+
+    public long y() {
+        return this.lastY;
+    }
+
+    public void apply(Long fsX, Long fsY) {
+        if (fsX != null) {
+            this.lastX = fsX;
+        }
+        if (fsY != null) {
+            this.lastY = fsY;
+        }
+    }
+
+    public Long vx(Long fsX) {
+        return this.lastX != null
+                ? fsX == null || this.lastX.longValue() == fsX ? null : fsX
+                : fsX;
+    }
+
+    public Long vy(Long fsY) {
+        return this.lastY != null
+                ? fsY == null || this.lastY.longValue() == fsY ? null : fsY
+                : fsY;
     }
 
     private void debug() {
