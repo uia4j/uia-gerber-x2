@@ -75,6 +75,7 @@ public class D01Plot implements IOp, IG36Stmt {
         return "D01";
     }
 
+    @Override
     public Long getX() {
         return this.x;
     }
@@ -83,6 +84,7 @@ public class D01Plot implements IOp, IG36Stmt {
         this.x = fsX;
     }
 
+    @Override
     public Long getY() {
         return this.y;
     }

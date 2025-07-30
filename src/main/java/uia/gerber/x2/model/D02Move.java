@@ -48,6 +48,7 @@ public class D02Move implements IOp {
         return "D2";
     }
 
+    @Override
     public Long getX() {
         return this.x;
     }
@@ -56,6 +57,7 @@ public class D02Move implements IOp {
         this.x = fsX;
     }
 
+    @Override
     public Long getY() {
         return this.y;
     }

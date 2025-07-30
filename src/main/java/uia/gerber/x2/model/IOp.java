@@ -4,4 +4,7 @@ import uia.gerber.x2.GerberX2Statement;
 
 public interface IOp extends GerberX2Statement {
 
+    public Long getX();
+
+    public Long getY();
 }

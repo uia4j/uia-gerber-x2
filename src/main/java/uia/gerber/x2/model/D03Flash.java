@@ -42,6 +42,7 @@ public class D03Flash implements IOp {
         return "D3";
     }
 
+    @Override
     public Long getX() {
         return this.x;
     }
@@ -50,6 +51,7 @@ public class D03Flash implements IOp {
         this.x = fsX;
     }
 
+    @Override
     public Long getY() {
         return this.y;
     }
