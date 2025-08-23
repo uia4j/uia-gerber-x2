@@ -1,10 +1,12 @@
 package uia.gerber.x2;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -54,6 +56,40 @@ public class GerberX2FileWriter {
     private Long lastY;
 
     private int rotate;
+
+    public static GerberX2FileWriter open(InputStream orig, OutputStream out, int intDigi, int decDigi, UnitType unit) throws Exception {
+        int max = 1024;
+        byte[] curr = new byte[max];
+        byte[] prev = new byte[max];
+        int _len = orig.read(prev);
+        while ((_len = orig.read(curr)) == max) {
+            out.write(prev);
+            prev = Arrays.copyOf(curr, max);
+        }
+        if (_len < 0) {
+            _len = 0;
+        }
+
+        byte[] last = new byte[prev.length + _len];
+        for (int i = 0; i < prev.length; i++) {
+            last[i] = prev[i];
+        }
+        for (int i = 0; i < _len; i++) {
+            last[prev.length + i] = curr[i];
+        }
+        String str = new String(last);
+        int eof = str.indexOf("M02*");
+        if (eof < 0) {
+            throw new Exception("M02 not found");
+        }
+
+        out.write(str.substring(0, eof).getBytes());
+
+        GerberX2FileWriter writer = new GerberX2FileWriter(out);
+        writer.open(intDigi, decDigi, unit);
+        return writer;
+
+    }
 
     /**
      * The constructor.
@@ -270,6 +306,12 @@ public class GerberX2FileWriter {
      * @throws IOException Failed to write records into output stream.
      */
     public int open() throws IOException {
+        return start(false, false, false, false, false, false);
+    }
+
+    public int open(int intDigi, int decDigi, UnitType unit) throws IOException {
+        this.fsValuer = new Valuer(intDigi, decDigi);
+        this.unit = unit;
         return start(false, false, false, false, false, false);
     }
 
