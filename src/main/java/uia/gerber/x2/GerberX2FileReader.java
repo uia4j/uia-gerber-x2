@@ -6,10 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.TreeMap;
 
+import uia.gerber.x2.am.MacroValues;
 import uia.gerber.x2.model.AB;
 import uia.gerber.x2.model.ABBlock;
 import uia.gerber.x2.model.ADCircle;
+import uia.gerber.x2.model.ADMacro;
 import uia.gerber.x2.model.ADObound;
 import uia.gerber.x2.model.ADRectangle;
 import uia.gerber.x2.model.AM;
@@ -26,13 +30,18 @@ import uia.gerber.x2.model.G04Comment;
 import uia.gerber.x2.model.G36;
 import uia.gerber.x2.model.G36Region;
 import uia.gerber.x2.model.G37;
+import uia.gerber.x2.model.G54;
 import uia.gerber.x2.model.G75;
 import uia.gerber.x2.model.IAD;
 import uia.gerber.x2.model.IOp;
 import uia.gerber.x2.model.IPlot;
 import uia.gerber.x2.model.IR;
+import uia.gerber.x2.model.LM;
+import uia.gerber.x2.model.LM.MirrorType;
 import uia.gerber.x2.model.LNLayer;
 import uia.gerber.x2.model.LP;
+import uia.gerber.x2.model.LR;
+import uia.gerber.x2.model.LS;
 import uia.gerber.x2.model.M02;
 import uia.gerber.x2.model.MO;
 import uia.gerber.x2.model.MO.UnitType;
@@ -41,6 +50,10 @@ import uia.gerber.x2.model.MO.UnitType;
 public class GerberX2FileReader {
 
     private final GerberX2FileReaderListener listener;
+
+    private final MacroValues macroValues;
+
+    private final Map<String, AM> ams;
 
     private int lineNo;
 
@@ -61,10 +74,14 @@ public class GerberX2FileReader {
     public GerberX2FileReader() {
         this.listener = new GerberX2FileReaderListener() {
         };
+        this.macroValues = new MacroValues();
+        this.ams = new TreeMap<>();
     }
 
     public GerberX2FileReader(GerberX2FileReaderListener listener) {
         this.listener = listener;
+        this.macroValues = new MacroValues();
+        this.ams = new TreeMap<>();
     }
 
     public synchronized FormatMode findFormatMode(String filePath) throws IOException {
@@ -158,11 +175,12 @@ public class GerberX2FileReader {
         }
 
         if (this.am != null) {
-            GerberX2Statement stmt = new GerberX2Statement.LINE(line);
-            this.listener.enter(this.lineNo, stmt);
-
-            if (line.charAt(0) == '%') {
+            if (line.charAt(len - 1) == '%') {
+                if (len > 1) {
+                    this.am.getBody().add(line.substring(0, len - 1));
+                }
                 this.listener.enterAM(this.lineNo, this.am);
+                this.listener.enter(this.lineNo, this.am);
                 this.am = null;
             }
             else {
@@ -177,20 +195,12 @@ public class GerberX2FileReader {
                 return;
             }
 
-            if (!line.startsWith("AM")) {
-                if (line.charAt(len - 1) != '%') {
-                    this.listener.error(this.lineNo, line, new Exception("ExtCmd format is not correct"));
-                    this.listener.enter(this.lineNo, new GerberX2Statement.LINE(line));
-                    return;
-                }
-            }
-
             for (String cmd : line.substring(1, len - 1).split("\\*")) {
                 try {
                     exec(cmd, true);
                 }
                 catch (Exception ex) {
-                    this.listener.error(len, cmd, ex);
+                    this.listener.error(this.lineNo, cmd, ex);
                     ex.printStackTrace();
                 }
 
@@ -212,7 +222,7 @@ public class GerberX2FileReader {
         }
     }
 
-    private void exec(String cmd, boolean ext) throws Exception {
+    private void exec(String cmd, boolean ext) {
         if (cmd == null || cmd.isEmpty()) {
             return;
         }
@@ -254,6 +264,9 @@ public class GerberX2FileReader {
             }
             else if (cmd.startsWith("G04")) {                       // G04
                 stmt = new G04Comment(cmd.substring(3));
+            }
+            else if (cmd.startsWith("G54")) {                       // G54
+                stmt = new G54(Integer.parseInt(cmd.substring(4)));
             }
             else if (cmd.equals("G36")) {                           // G36
                 stmt = new G36();
@@ -310,6 +323,15 @@ public class GerberX2FileReader {
                 this.layer = (LNLayer) stmt;
                 this.listener.enterLayer(this.lineNo, this.layer);
             }
+            else if (cmd.startsWith("LR")) {                        // LR
+                stmt = new LR(new BigDecimal(cmd.substring(2)));
+            }
+            else if (cmd.startsWith("LS")) {                        // LS
+                stmt = new LS(new BigDecimal(cmd.substring(2)));
+            }
+            else if (cmd.startsWith("LM")) {                        // LM
+                stmt = new LM(MirrorType.valueOf(cmd.substring(2)));
+            }
         }
         else if (ch == 'A') {                                       // A
             if (cmd.startsWith("AB")) {                             // AB
@@ -321,6 +343,7 @@ public class GerberX2FileReader {
                     this.listener.enterAB(this.lineNo, (AB) stmt);
                 }
                 else {
+                    stmt = new AB();
                     this.listener.exitAB(this.lineNo, this.ab);
                     this.ab = null;
                 }
@@ -328,37 +351,52 @@ public class GerberX2FileReader {
             else if (cmd.startsWith("ADD")) {                       // ADD
                 String[] shapeParam = cmd.split("[,X]");
 
-                String dxx = shapeParam[0].substring(3, shapeParam[0].length() - 1);
-                int nCode = Integer.parseInt(dxx);
-                char sn = shapeParam[0].charAt(shapeParam[0].length() - 1);
+                String dxx = shapeParam[0].substring(3);
+                int nCode = -1;
+                String sn = "";
+                for (int e = 2; e < dxx.length(); e++) {
+                    if (dxx.charAt(e) < '0' || dxx.charAt(e) > '9') {
+                        nCode = Integer.parseInt(dxx.substring(0, e));
+                        sn = dxx.substring(e);
+                        break;
+                    }
+                }
 
-                if (sn == 'C') {
+                if ("C".equals(sn)) {
                     stmt = new ADCircle(
                             nCode,
                             new BigDecimal(shapeParam[1]),
                             shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
                 }
-                else if (sn == 'R') {
+                else if ("R".equals(sn)) {
                     stmt = new ADRectangle(
                             nCode,
                             new BigDecimal(shapeParam[1]),
                             new BigDecimal(shapeParam[2]),
                             shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
-                else if (sn == 'O') {
+                else if ("O".equals(sn)) {
                     stmt = new ADObound(
                             nCode,
                             new BigDecimal(shapeParam[1]),
                             new BigDecimal(shapeParam[2]),
                             shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
+                else {
+                    AM am = this.ams.get(sn);
+                    if (am != null) {
+                        stmt = new ADMacro(nCode, am);
+                    }
+                }
+
                 this.listener.apertureDefined(this.lineNo, (IAD) stmt);
             }
             else if (cmd.startsWith("AM")) {                        // AM
                 String name = cmd.substring(2);
-                this.am = new AM(name);
+                this.am = new AM(name, this.macroValues);
+                this.ams.put(this.am.getName(), this.am);
+                return;
             }
-            // TODO:
         }
         else if (ch == 'T') {                                       // T
             ATTR attr = new ATTR(cmd.substring(0, 2));

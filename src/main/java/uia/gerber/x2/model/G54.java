@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * G54(Tool Prepare) precedes an aperture D-code.
+ * G54(Tool Prepare) precedes an aperture D-code. Deprecated in 2012.
  *
  * @author Kyle K. Lin
  *
  */
+@Deprecated
 public class G54 implements IState {
 
     private final int dCode;

@@ -15,6 +15,11 @@ public class AB implements IAD {
 
     private final String dnn;
 
+    public AB() {
+        this.no = -1;
+        this.dnn = "";
+    }
+
     public AB(String dnn) {
         this.no = Integer.parseInt(dnn.substring(1));
         this.dnn = dnn;

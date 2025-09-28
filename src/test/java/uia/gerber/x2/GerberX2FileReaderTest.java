@@ -4,25 +4,10 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import uia.gerber.x2.GerberX2FileReader.FormatMode;
-import uia.gerber.x2.model.AB;
-import uia.gerber.x2.model.ABBlock;
-import uia.gerber.x2.model.G36Region;
-import uia.gerber.x2.model.IAD;
 import uia.gerber.x2.model.LNLayer;
 
 @SuppressWarnings("deprecation")
 public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
-
-    @Test
-    public void test() throws IOException {
-        GerberX2FileReader r = new GerberX2FileReader(this);
-        r.run("samples/plp/ML1.gbr");
-
-        FormatMode fm = r.findFormatMode("samples/plp/ML1.gbr");
-        System.out.println(fm.format.valuer());
-        System.out.println(fm.mode.getUnit());
-    }
 
     @Test
     public void test0() throws IOException {
@@ -84,9 +69,10 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
         r.run("samples/gerber9.gbr");
     }
 
-    @Override
-    public void enter(int lineNo, GerberX2Statement stmt) {
-        // out(stmt);
+    @Test
+    public void testD() throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run("samples/gerberD.gbr");
     }
 
     @Override
@@ -100,31 +86,18 @@ public class GerberX2FileReaderTest implements GerberX2FileReaderListener {
     }
 
     @Override
-    public void apertureDefined(int lineNo, IAD stmt) {
-        // System.out.println("== " + stmt.getDnn() + " ==");
-    }
-
-    @Override
-    public void enterG36(int lineNo) {
-    }
-
-    @Override
-    public void exitG36(int lineNo, G36Region g36Region) {
-        // out(g36Region);
-    }
-
-    @Override
-    public void enterAB(int lineNo, AB ab) {
-    }
-
-    @Override
-    public void exitAB(int lineNo, ABBlock block) {
-        // out(block);
-    }
-
-    @Override
     public void enterLayer(int lineNo, LNLayer layer) {
         System.out.println("Layer=" + layer.getName());
+    }
+
+    @Override
+    public void enter(int lineNo, GerberX2Statement stmt) {
+        try {
+            stmt.write(System.out);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
