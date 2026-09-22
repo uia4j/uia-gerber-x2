@@ -21,6 +21,8 @@ public class AM implements GerberX2Statement {
 
     private final List<String> body;
 
+    private List<MacroBlock> blocks;
+
     public AM(String name, MacroValues values) {
         this.name = name;
         this.values = values;
@@ -36,22 +38,26 @@ public class AM implements GerberX2Statement {
     }
 
     public List<MacroBlock> parse() throws Exception {
-        List<MacroBlock> blocks = new ArrayList<>();
+        if (this.blocks != null) {
+            return this.blocks;
+        }
+
+        this.blocks = new ArrayList<>();
         String cmd = "";
         for (String line : this.body) {
             cmd += line;
             if (line.endsWith("*")) {
                 cmd = cmd.substring(0, cmd.length() - 1);
                 if (cmd.startsWith("$")) {
-                    blocks.add(variableDefinition(cmd));
+                    this.blocks.add(variableDefinition(cmd));
                 }
                 else {
-                    blocks.add(primitive(cmd));
+                    this.blocks.add(primitive(cmd));
                 }
                 cmd = "";
             }
         }
-        return blocks;
+        return this.blocks;
     }
 
     private VariableDefinition variableDefinition(String cmd) {

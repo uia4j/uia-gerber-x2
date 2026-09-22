@@ -16,12 +16,12 @@ public class ADCircle extends AD {
 
     private final BigDecimal holeDiameter;
 
-    /**
-     * The constructor.
-     *
-     * @param diameter The diameter.
-     * @param holeDiameter The hole diameter.
-     */
+    public ADCircle(String dnn, BigDecimal diameter, BigDecimal holeDiameter) {
+        super(dnn, "C");
+        this.diameter = diameter;
+        this.holeDiameter = holeDiameter;
+    }
+
     public ADCircle(int no, BigDecimal diameter, BigDecimal holeDiameter) {
         super(no, "C");
         this.diameter = diameter;

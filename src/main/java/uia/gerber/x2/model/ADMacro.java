@@ -13,12 +13,11 @@ public class ADMacro extends AD {
 
     private final AM am;
 
-    /**
-     * The constructor.
-     *
-     * @param diameter The diameter.
-     * @param holeDiameter The hole diameter.
-     */
+    public ADMacro(String dnn, AM am) {
+        super(dnn, am.getName());
+        this.am = am;
+    }
+
     public ADMacro(int no, AM am) {
         super(no, am.getName());
         this.am = am;

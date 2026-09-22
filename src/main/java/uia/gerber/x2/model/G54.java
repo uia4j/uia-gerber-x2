@@ -12,10 +12,13 @@ import java.io.OutputStream;
 @Deprecated
 public class G54 implements IState {
 
-    private final int dCode;
+    private final int no;
 
-    public G54(int dCode) {
-        this.dCode = dCode;
+    private final String dnn;
+
+    public G54(String dnn) {
+        this.no = Integer.parseInt(dnn.substring(1));
+        this.dnn = dnn;
     }
 
     @Override
@@ -23,9 +26,17 @@ public class G54 implements IState {
         return "G54";
     }
 
+    public int getNo() {
+        return this.no;
+    }
+
+    public String getDnn() {
+        return this.dnn;
+    }
+
     @Override
     public void write(OutputStream out) throws IOException {
-        out.write(String.format("G54D%03d*\n", this.dCode).getBytes());
+        out.write(String.format("G54D%03d*\n", this.no).getBytes());
     }
 
 }

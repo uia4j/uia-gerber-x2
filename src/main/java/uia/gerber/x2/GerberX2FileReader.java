@@ -71,6 +71,8 @@ public class GerberX2FileReader {
 
     private LNLayer layer;
 
+    private boolean interrupt;
+
     public GerberX2FileReader() {
         this.listener = new GerberX2FileReaderListener() {
         };
@@ -88,6 +90,14 @@ public class GerberX2FileReader {
         try (FileInputStream fis = new FileInputStream(filePath)) {
             return findFormatMode(fis);
         }
+    }
+
+    public void interrupt() {
+        this.interrupt = true;
+    }
+
+    public Valuer valuer() {
+        return this.fs.valuer();
     }
 
     public synchronized FormatMode findFormatMode(InputStream fis) throws IOException {
@@ -124,12 +134,16 @@ public class GerberX2FileReader {
         this.contour = null;
         this.fs = null;
         this.layer = null;
+        this.interrupt = false;
 
         // remark:
         //  Files.lines() failed
         try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, "utf-8"))) {
             for (String line = null; (line = br.readLine()) != null;) {
                 handle(line);
+                if (this.interrupt) {
+                    break;
+                }
             }
         }
         if (this.listener != null) {
@@ -266,7 +280,7 @@ public class GerberX2FileReader {
                 stmt = new G04Comment(cmd.substring(3));
             }
             else if (cmd.startsWith("G54")) {                       // G54
-                stmt = new G54(Integer.parseInt(cmd.substring(4)));
+                stmt = new G54(cmd.substring(3));
             }
             else if (cmd.equals("G36")) {                           // G36
                 stmt = new G36();
@@ -351,12 +365,12 @@ public class GerberX2FileReader {
             else if (cmd.startsWith("ADD")) {                       // ADD
                 String[] shapeParam = cmd.split("[,X]");
 
-                String dxx = shapeParam[0].substring(3);
-                int nCode = -1;
+                String dnn = null;
                 String sn = "";
+                String dxx = shapeParam[0].substring(3);
                 for (int e = 2; e < dxx.length(); e++) {
                     if (dxx.charAt(e) < '0' || dxx.charAt(e) > '9') {
-                        nCode = Integer.parseInt(dxx.substring(0, e));
+                        dnn = cmd.substring(2, 3 + e);
                         sn = dxx.substring(e);
                         break;
                     }
@@ -364,28 +378,28 @@ public class GerberX2FileReader {
 
                 if ("C".equals(sn)) {
                     stmt = new ADCircle(
-                            nCode,
-                            new BigDecimal(shapeParam[1]),
-                            shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
+                        dnn,
+                        new BigDecimal(shapeParam[1]),
+                        shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
                 }
                 else if ("R".equals(sn)) {
                     stmt = new ADRectangle(
-                            nCode,
-                            new BigDecimal(shapeParam[1]),
-                            new BigDecimal(shapeParam[2]),
-                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                        dnn,
+                        new BigDecimal(shapeParam[1]),
+                        new BigDecimal(shapeParam[2]),
+                        shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
                 else if ("O".equals(sn)) {
                     stmt = new ADObound(
-                            nCode,
-                            new BigDecimal(shapeParam[1]),
-                            new BigDecimal(shapeParam[2]),
-                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                        dnn,
+                        new BigDecimal(shapeParam[1]),
+                        new BigDecimal(shapeParam[2]),
+                        shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
                 else {
                     AM am = this.ams.get(sn);
                     if (am != null) {
-                        stmt = new ADMacro(nCode, am);
+                        stmt = new ADMacro(dnn, am);
                     }
                 }
 
@@ -446,10 +460,10 @@ public class GerberX2FileReader {
 
     private Long[] dxx(String data) {
         String[] xyij = new String[] {
-                "",
-                "",
-                "",
-                ""
+            "",
+            "",
+            "",
+            ""
         };
         int selected = -1;
         int d = data.indexOf("D");
@@ -483,8 +497,8 @@ public class GerberX2FileReader {
 
     private Integer[] fs(String data) {
         String[] xy = new String[] {
-                "",
-                ""
+            "",
+            ""
         };
         int selected = -1;
         char[] chs = data.toCharArray();

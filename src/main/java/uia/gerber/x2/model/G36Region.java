@@ -31,6 +31,10 @@ public class G36Region implements GerberX2Statement {
         return c;
     }
 
+    public List<Contour> getContours() {
+        return this.contours;
+    }
+
     @Override
     public List<ATTR> getAttributes() {
         return this.attributes;
@@ -75,6 +79,10 @@ public class G36Region implements GerberX2Statement {
             this.stmts = new ArrayList<>();
         }
 
+        public D02Move startsAt() {
+            return this.d02;
+        }
+
         /**
          *
          * @param stmt one of D01, G01, G02, G03.
@@ -82,6 +90,10 @@ public class G36Region implements GerberX2Statement {
         public Contour plot(IG36Stmt stmt) {
             this.stmts.add(stmt);
             return this;
+        }
+
+        public List<IG36Stmt> getStmts() {
+            return this.stmts;
         }
 
         public void write(OutputStream out) throws IOException {

@@ -18,19 +18,15 @@ public class ADObound extends AD {
 
     private final BigDecimal holeDiameter;
 
-    /**
-     * The constructor.
-     *
-     * @param no The number between 10..999.
-     * @param width The width.
-     * @param height The height.
-     * @param holeDiameter The hole diameter.
-     */
+    public ADObound(String dnn, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) {
+        super(dnn, "O");
+        this.width = width;
+        this.height = height;
+        this.holeDiameter = holeDiameter;
+    }
+
     public ADObound(int no, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) {
         super(no, "O");
-        if (no < 10 || no > 999) {
-            throw new IllegalArgumentException("number out of range [10..999]");
-        }
         this.width = width;
         this.height = height;
         this.holeDiameter = holeDiameter;

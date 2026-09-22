@@ -12,19 +12,22 @@ import java.util.List;
  * @author Kyle K. Lin
  *
  */
-public class AD implements IAD {
+public abstract class AD implements IAD {
 
-    private List<ATTR> attributes;
+    private final int no;
 
-    private int no;
-
-    private String dCode;
+    private final String dnn;
 
     private String template;
 
     private List<BigDecimal> xs;
 
-    public AD() {
+    private List<ATTR> attributes;
+
+    public AD(String dnn, String template) {
+        this.no = Integer.parseInt(dnn.substring(1));
+        this.dnn = dnn;
+        this.template = template;
         this.attributes = new ArrayList<>();
         this.xs = new ArrayList<>();
     }
@@ -34,7 +37,7 @@ public class AD implements IAD {
             throw new IllegalArgumentException("number out of range [10..999]");
         }
         this.no = no;
-        this.dCode = String.format("D%03d", no);
+        this.dnn = String.format("D%03d", no);
         this.template = template;
         this.attributes = new ArrayList<>();
         this.xs = new ArrayList<>();
@@ -52,7 +55,7 @@ public class AD implements IAD {
 
     @Override
     public String getDnn() {
-        return this.dCode;
+        return this.dnn;
     }
 
     @Override
@@ -63,10 +66,6 @@ public class AD implements IAD {
     @Override
     public void setAttributes(List<ATTR> attributes) {
         this.attributes = new ArrayList<>(attributes);
-    }
-
-    public void setDnn(String dnn) {
-        this.dCode = dnn;
     }
 
     public String getTemplate() {
@@ -90,7 +89,7 @@ public class AD implements IAD {
         for (ATTR attr : this.attributes) {
             attr.write(out);
         }
-        out.write(String.format("%%AD%S%S,%S", this.dCode, this.template, this.xs.get(0)).getBytes());
+        out.write(String.format("%%AD%S%S,%S", this.dnn, this.template, this.xs.get(0)).getBytes());
         for (int i = 1; i < this.xs.size(); i++) {
             out.write(String.format("X%S", this.xs.get(i)).getBytes());
         }
@@ -99,6 +98,6 @@ public class AD implements IAD {
 
     @Override
     public String toString() {
-        return String.format("AD%s", this.dCode);
+        return String.format("AD%s", this.dnn);
     }
 }

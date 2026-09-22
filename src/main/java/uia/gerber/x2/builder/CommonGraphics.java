@@ -75,9 +75,9 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADCircle(
-                dCode,
-                moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                null).write(this.out);
+                        dCode,
+                        moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        null).write(this.out);
         return this;
     }
 
@@ -96,9 +96,9 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADCircle(
-                dCode,
-                moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
+                        dCode,
+                        moDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
         return this;
     }
 
@@ -112,10 +112,10 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         BigDecimal min = BigDecimal.valueOf(Math.pow(10, -this.writer.fs().decDigi()))
-                .setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+                        .setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
         BigDecimal _w = moWidth.compareTo(min) < 0
-                ? min
-                : moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
+                        ? min
+                        : moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP);
 
         new ADRectangle(dCode, _w, _w, null).write(this.out);
         return this;
@@ -136,10 +136,10 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADRectangle(
-                dCode,
-                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                null).write(this.out);
+                        dCode,
+                        moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        null).write(this.out);
         return this;
     }
 
@@ -159,10 +159,10 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADRectangle(
-                dCode,
-                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
+                        dCode,
+                        moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHoleDiameter.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP)).write(this.out);
         return this;
     }
 
@@ -180,10 +180,10 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADObound(
-                dCode,
-                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                null).write(this.out);
+                        dCode,
+                        moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        null).write(this.out);
         return this;
     }
 
@@ -202,10 +202,10 @@ public class CommonGraphics implements GerberX2Graphics {
         }
         endLast();
         new ADObound(
-                dCode,
-                moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
-                moHoleDiameter).write(this.out);
+                        dCode,
+                        moWidth.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHeight.setScale(this.writer.fs().decDigi(), BigDecimal.ROUND_HALF_UP),
+                        moHoleDiameter).write(this.out);
         return this;
     }
 
@@ -475,10 +475,10 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH) throws IOException {
         return move(fsX, fsY)
-                .lineToH(fsX + fsW)
-                .lineToV(fsY + fsH)
-                .lineToH(fsX)
-                .lineToV(fsY);
+                        .lineToH(fsX + fsW)
+                        .lineToV(fsY + fsH)
+                        .lineToH(fsX)
+                        .lineToV(fsY);
     }
 
     /**
@@ -494,11 +494,11 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH, int dCode) throws IOException {
         return dnn(dCode)
-                .move(fsX, fsY)
-                .lineToH(fsX + fsW)
-                .lineToV(fsY + fsH)
-                .lineToH(fsX)
-                .lineToV(fsY);
+                        .move(fsX, fsY)
+                        .lineToH(fsX + fsW)
+                        .lineToV(fsY + fsH)
+                        .lineToH(fsX)
+                        .lineToV(fsY);
     }
 
     /**
@@ -515,12 +515,12 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     public CommonGraphics rect(long fsX, long fsY, long fsW, long fsH, int dCode, boolean dark) throws IOException {
         return loadPolarity(dark)
-                .dnn(dCode)
-                .move(fsX, fsY)
-                .lineToH(fsX + fsW)
-                .lineToV(fsY + fsH)
-                .lineToH(fsX)
-                .lineToV(fsY);
+                        .dnn(dCode)
+                        .move(fsX, fsY)
+                        .lineToH(fsX + fsW)
+                        .lineToV(fsY + fsH)
+                        .lineToH(fsX)
+                        .lineToV(fsY);
     }
 
     public CommonGraphics mirror(MirrorType mt) throws IOException {

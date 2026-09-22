@@ -26,11 +26,15 @@ public class ADRectangle extends AD {
      * @param height The height.
      * @param holeDiameter The hole diameter.
      */
+    public ADRectangle(String dnn, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) {
+        super(dnn, "R");
+        this.width = width;
+        this.height = height;
+        this.holeDiameter = holeDiameter;
+    }
+
     public ADRectangle(int no, BigDecimal width, BigDecimal height, BigDecimal holeDiameter) {
         super(no, "R");
-        if (no < 10 || no > 999) {
-            throw new IllegalArgumentException("number out of range [10..999]");
-        }
         this.width = width;
         this.height = height;
         this.holeDiameter = holeDiameter;
