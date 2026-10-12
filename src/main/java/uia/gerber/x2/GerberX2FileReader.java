@@ -325,9 +325,11 @@ public class GerberX2FileReader {
         else if (ch == 'L') {                                       // L
             if (cmd.equals("LPD")) {                                // LPD
                 stmt = new LP(true);
+                this.listener.dark(this.lineNo, true);
             }
             else if (cmd.equals("LPC")) {                           // LPC
                 stmt = new LP(false);
+                this.listener.dark(this.lineNo, false);
             }
             else if (cmd.startsWith("LN")) {                        // LN
                 stmt = new LNLayer(cmd.substring(2));
@@ -378,23 +380,23 @@ public class GerberX2FileReader {
 
                 if ("C".equals(sn)) {
                     stmt = new ADCircle(
-                        dnn,
-                        new BigDecimal(shapeParam[1]),
-                        shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
+                            dnn,
+                            new BigDecimal(shapeParam[1]),
+                            shapeParam.length > 2 ? new BigDecimal(shapeParam[2]) : null);
                 }
                 else if ("R".equals(sn)) {
                     stmt = new ADRectangle(
-                        dnn,
-                        new BigDecimal(shapeParam[1]),
-                        new BigDecimal(shapeParam[2]),
-                        shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                            dnn,
+                            new BigDecimal(shapeParam[1]),
+                            new BigDecimal(shapeParam[2]),
+                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
                 else if ("O".equals(sn)) {
                     stmt = new ADObound(
-                        dnn,
-                        new BigDecimal(shapeParam[1]),
-                        new BigDecimal(shapeParam[2]),
-                        shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
+                            dnn,
+                            new BigDecimal(shapeParam[1]),
+                            new BigDecimal(shapeParam[2]),
+                            shapeParam.length > 3 ? new BigDecimal(shapeParam[3]) : null);
                 }
                 else {
                     AM am = this.ams.get(sn);
@@ -460,10 +462,10 @@ public class GerberX2FileReader {
 
     private Long[] dxx(String data) {
         String[] xyij = new String[] {
-            "",
-            "",
-            "",
-            ""
+                "",
+                "",
+                "",
+                ""
         };
         int selected = -1;
         int d = data.indexOf("D");
@@ -497,8 +499,8 @@ public class GerberX2FileReader {
 
     private Integer[] fs(String data) {
         String[] xy = new String[] {
-            "",
-            ""
+                "",
+                ""
         };
         int selected = -1;
         char[] chs = data.toCharArray();

@@ -127,6 +127,9 @@ public interface GerberX2FileReaderListener {
     public default void exitLayer(int lineNo, LNLayer layer) {
     }
 
+    public default void dark(int lineNo, boolean enabled) {
+    }
+
     public default void op(int lineNo, IOp stmt) {
     }
 
