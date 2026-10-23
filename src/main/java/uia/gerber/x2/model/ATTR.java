@@ -2,6 +2,7 @@ package uia.gerber.x2.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public class ATTR implements GerberX2Statement {
 
     private final List<String> fields;
 
+    private final Charset charset;
+
     /**
      * The constructor.
      *
@@ -35,6 +38,13 @@ public class ATTR implements GerberX2Statement {
     public ATTR(String cmd) {
         this.cmd = cmd;
         this.fields = new ArrayList<>();
+        this.charset = Charset.defaultCharset();
+    }
+
+    public ATTR(String cmd, Charset charset) {
+        this.cmd = cmd;
+        this.fields = new ArrayList<>();
+        this.charset = charset;
     }
 
     @Override
@@ -78,7 +88,7 @@ public class ATTR implements GerberX2Statement {
     public void write(OutputStream out) throws IOException {
         out.write(String.format("%%%S%s", this.cmd, this.name).getBytes());
         for (String f : this.fields) {
-            out.write(String.format(",%s", f).getBytes());
+            out.write(String.format(",%s", f).getBytes(this.charset));
         }
         out.write("*%\n".getBytes());
     }

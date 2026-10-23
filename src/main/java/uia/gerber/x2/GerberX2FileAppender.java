@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import uia.gerber.x2.GerberX2FileReader.Cmder;
 import uia.gerber.x2.builder.CommonGraphics;
@@ -34,11 +35,11 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
     private Valuer origFS;
 
     public GerberX2FileAppender(String newPathname) throws IOException {
-        this(new FileOutputStream(new File(newPathname), false));
+        this(new FileOutputStream(new File(newPathname), false), Charset.defaultCharset());
     }
 
-    public GerberX2FileAppender(OutputStream newOut) throws IOException {
-        this.writer = new GerberX2FileWriter(newOut);
+    public GerberX2FileAppender(OutputStream newOut, Charset charset) throws IOException {
+        this.writer = new GerberX2FileWriter(newOut, charset);
         this.intDigi = null;
         this.decDigi = null;
         this.append = false;
@@ -48,11 +49,11 @@ public class GerberX2FileAppender implements GerberX2FileReaderListener {
     }
 
     public GerberX2FileAppender(String newPathname, int newIntDigi, int newDecDigi) throws IOException {
-        this(new FileOutputStream(new File(newPathname), false), newIntDigi, newDecDigi);
+        this(new FileOutputStream(new File(newPathname), false), newIntDigi, newDecDigi, Charset.defaultCharset());
     }
 
-    public GerberX2FileAppender(OutputStream newOut, int newIntDigi, int newDecDigi) throws IOException {
-        this.writer = new GerberX2FileWriter(newOut);
+    public GerberX2FileAppender(OutputStream newOut, int newIntDigi, int newDecDigi, Charset charset) throws IOException {
+        this.writer = new GerberX2FileWriter(newOut, charset);
         this.intDigi = newIntDigi;
         this.decDigi = newDecDigi;
         this.append = false;

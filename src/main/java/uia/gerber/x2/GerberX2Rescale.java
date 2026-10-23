@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import uia.gerber.x2.builder.CommonGraphics;
 import uia.gerber.x2.model.FS;
@@ -22,11 +23,11 @@ public class GerberX2Rescale implements GerberX2FileReaderListener {
     private Valuer valuer;
 
     public GerberX2Rescale(String newPathname, int intDigi, int decDigi) throws IOException {
-        this(new FileOutputStream(new File(newPathname), false), intDigi, decDigi);
+        this(new FileOutputStream(new File(newPathname), false), intDigi, decDigi, Charset.defaultCharset());
     }
 
-    public GerberX2Rescale(OutputStream newOut, int intDigi, int decDigi) throws IOException {
-        this.writer = new GerberX2FileWriter(newOut);
+    public GerberX2Rescale(OutputStream newOut, int intDigi, int decDigi, Charset charset) throws IOException {
+        this.writer = new GerberX2FileWriter(newOut, charset);
         this.intDigi = intDigi;
         this.decDigi = decDigi;
         this.writer.open();

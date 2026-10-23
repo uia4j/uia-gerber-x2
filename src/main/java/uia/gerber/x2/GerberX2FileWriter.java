@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,8 @@ public class GerberX2FileWriter {
 
     private final OutputStream out;
 
+    private final Charset charset;
+
     private String description;
 
     private MO.UnitType unit;
@@ -57,7 +60,7 @@ public class GerberX2FileWriter {
 
     private int rotate;
 
-    public static GerberX2FileWriter open(InputStream orig, OutputStream out, int intDigi, int decDigi, UnitType unit) throws Exception {
+    public static GerberX2FileWriter open(InputStream orig, OutputStream out, int intDigi, int decDigi, UnitType unit, Charset charset) throws Exception {
         int max = 1024;
         byte[] curr = new byte[max];
         byte[] prev = new byte[max];
@@ -85,19 +88,24 @@ public class GerberX2FileWriter {
 
         out.write(str.substring(0, eof).getBytes());
 
-        GerberX2FileWriter writer = new GerberX2FileWriter(out);
+        GerberX2FileWriter writer = new GerberX2FileWriter(out, charset);
         writer.open(intDigi, decDigi, unit);
         return writer;
 
     }
 
-    /**
-     * The constructor.
-     *
-     * @param out The output stream.
-     */
     public GerberX2FileWriter(OutputStream out) {
+        this(out, Charset.defaultCharset());
+    }
+
+    /**
+    * The constructor.
+    *
+    * @param out The output stream.
+    */
+    public GerberX2FileWriter(OutputStream out, Charset charset) {
         this.out = new OutputStreamExt(out);
+        this.charset = charset;
         this.unit = MO.UnitType.MM;
         this.ad = new ArrayList<>();
         this.attrs = new ArrayList<ATTR>();
@@ -127,6 +135,10 @@ public class GerberX2FileWriter {
      */
     public OutputStream getOutputStream() {
         return this.out;
+    }
+
+    public Charset getCharset() {
+        return this.charset;
     }
 
     /**

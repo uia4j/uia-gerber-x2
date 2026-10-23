@@ -1,8 +1,5 @@
 package uia.gerber.x2.model;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +17,6 @@ public abstract class AD implements IAD {
 
     private String template;
 
-    private List<BigDecimal> xs;
-
     private List<ATTR> attributes;
 
     public AD(String dnn, String template) {
@@ -29,7 +24,6 @@ public abstract class AD implements IAD {
         this.dnn = dnn;
         this.template = template;
         this.attributes = new ArrayList<>();
-        this.xs = new ArrayList<>();
     }
 
     public AD(int no, String template) {
@@ -40,7 +34,6 @@ public abstract class AD implements IAD {
         this.dnn = String.format("D%03d", no);
         this.template = template;
         this.attributes = new ArrayList<>();
-        this.xs = new ArrayList<>();
     }
 
     @Override
@@ -74,26 +67,6 @@ public abstract class AD implements IAD {
 
     public void setTemplate(String template) {
         this.template = template;
-    }
-
-    public List<BigDecimal> getXs() {
-        return this.xs;
-    }
-
-    public void setXs(List<BigDecimal> xs) {
-        this.xs = xs;
-    }
-
-    @Override
-    public void write(OutputStream out) throws IOException {
-        for (ATTR attr : this.attributes) {
-            attr.write(out);
-        }
-        out.write(String.format("%%AD%S%S,%S", this.dnn, this.template, this.xs.get(0)).getBytes());
-        for (int i = 1; i < this.xs.size(); i++) {
-            out.write(String.format("X%S", this.xs.get(i)).getBytes());
-        }
-        out.write("*%\n".getBytes());
     }
 
     @Override

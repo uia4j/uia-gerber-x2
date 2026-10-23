@@ -41,6 +41,7 @@ public class GerberX2FileWriterTest {
 
         writer1.close();
 
+        @SuppressWarnings("deprecation")
         GerberX2FileWriter writer2 = new GerberX2FileWriter(new FileOutputStream(new File("samples/gerber1_r.gbr"), false))
                 .fs(4, 6)
                 .rotate(270)
@@ -366,15 +367,9 @@ public class GerberX2FileWriterTest {
         writer.start();
 
         CommonGraphics cg = writer.getGraphics();
-
-        cg.layer("A")
-                .createText("Arial")
-                .text("Layer A", writer.xy(0), writer.xy(0), writer.xy(100), writer.xy(10));
-
-        cg.layer("B")
-                .createText("Arial")
-                .text("Layer B", writer.xy(0), writer.xy(20), writer.xy(100), writer.xy(10))
-                .close();
+        cg.createText("Arial").text("Layer A", writer.xy(0), writer.xy(10), writer.xy(100), writer.xy(10));
+        cg.createText("Arial").text("Layer B", writer.xy(0), writer.xy(90), writer.xy(100), writer.xy(10));
+        cg.close();
 
         writer.close();
     }

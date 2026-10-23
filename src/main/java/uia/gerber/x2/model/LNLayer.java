@@ -2,6 +2,7 @@ package uia.gerber.x2.model;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import uia.gerber.x2.GerberX2Statement;
 
@@ -16,8 +17,16 @@ public class LNLayer implements GerberX2Statement {
 
     private final String name;
 
+    private final Charset charset;
+
     public LNLayer(String name) {
         this.name = name;
+        this.charset = Charset.defaultCharset();
+    }
+
+    public LNLayer(String name, Charset charset) {
+        this.name = name;
+        this.charset = charset;
     }
 
     @Override
@@ -31,6 +40,6 @@ public class LNLayer implements GerberX2Statement {
 
     @Override
     public void write(OutputStream out) throws IOException {
-        out.write(String.format("%%LN%s*%%\n", this.name).getBytes());
+        out.write(String.format("%%LN%s*%%\n", this.name).getBytes(this.charset));
     }
 }

@@ -276,7 +276,7 @@ public class CommonGraphics implements GerberX2Graphics {
      * @throws IOException Failed to write to the output stream.
      */
     public CommonGraphics comment(String text) throws IOException {
-        new G04Comment(text).write(this.out);
+        new G04Comment(text, this.writer.getCharset()).write(this.out);
         return this;
     }
 
@@ -288,7 +288,7 @@ public class CommonGraphics implements GerberX2Graphics {
      */
     @Deprecated
     public CommonGraphics layer(String name) throws IOException {
-        new LNLayer(name).write(this.out);;
+        new LNLayer(name, this.writer.getCharset()).write(this.out);
         return this;
     }
 
@@ -376,7 +376,8 @@ public class CommonGraphics implements GerberX2Graphics {
         if (this.lastState != 2) {
             new G02().write(this.out);
         }
-        new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        // new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        new D01Plot(fsX, fsY, fsI, fsJ).write(this.out);
         this.writer.apply(fsX, fsY);
         this.lastState = 2;
         return this;
@@ -396,7 +397,8 @@ public class CommonGraphics implements GerberX2Graphics {
         if (this.lastState != 3) {
             new G03().write(this.out);
         }
-        new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        // new D01Plot(this.writer.vx(fsX), this.writer.vy(fsY), fsI, fsJ).write(this.out);
+        new D01Plot(fsX, fsY, fsI, fsJ).write(this.out);
         this.writer.apply(fsX, fsY);
         this.lastState = 3;
         return this;
