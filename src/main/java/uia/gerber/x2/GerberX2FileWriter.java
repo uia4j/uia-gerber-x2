@@ -60,6 +60,20 @@ public class GerberX2FileWriter {
 
     private int rotate;
 
+    /**
+     * Open a new writer.
+     *
+     * <p>The (intDigi,decDigi,unit,charset) must be same as original.</p>
+     *
+     * @param orig The original GBR file input stream.
+     * @param out The new GBR file output stream.
+     * @param intDigi The integer digi.
+     * @param decDigi The decimal digi.
+     * @param unit The unit
+     * @param charset The charset.
+     * @return The new writer.
+     * @throws Exception failed to create a new writer.
+     */
     public static GerberX2FileWriter open(InputStream orig, OutputStream out, int intDigi, int decDigi, UnitType unit, Charset charset) throws Exception {
         int max = 1024;
         byte[] curr = new byte[max];
@@ -91,7 +105,6 @@ public class GerberX2FileWriter {
         GerberX2FileWriter writer = new GerberX2FileWriter(out, charset);
         writer.open(intDigi, decDigi, unit);
         return writer;
-
     }
 
     public GerberX2FileWriter(OutputStream out) {
@@ -312,7 +325,7 @@ public class GerberX2FileWriter {
     }
 
     /**
-     * Open the output stream without statements.
+     * Open the output stream without writing statements.
      *
      * @return 0: success, 1: started already, 2: closed.
      * @throws IOException Failed to write records into output stream.
@@ -321,6 +334,15 @@ public class GerberX2FileWriter {
         return start(false, false, false, false, false, false);
     }
 
+    /**
+     * Open the output stream without writing statements.
+     *
+     * @param intDigi The initial integer digi.
+     * @param decDigi The initial integer digi.
+     * @param unit  The initial unit.
+     * @return
+     * @throws IOException
+     */
     public int open(int intDigi, int decDigi, UnitType unit) throws IOException {
         this.fsValuer = new Valuer(intDigi, decDigi);
         this.unit = unit;
@@ -328,11 +350,11 @@ public class GerberX2FileWriter {
     }
 
     /**
-     * Starts the writer.
+     * Starts the writer with FS, MO statements.
      *
      * @param intDigi The digit of integer.
      * @param decDigi The digit of decimal.
-     * @return
+     * @return 0: success, 1: started already, 2: closed.
      * @throws IOException
      */
     public int start(int intDigi, int decDigi, UnitType unit) throws IOException {

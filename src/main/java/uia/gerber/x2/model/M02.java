@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * End of file.
  *
  * @author Kyle K. Lin
  *

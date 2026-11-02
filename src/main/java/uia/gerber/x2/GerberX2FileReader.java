@@ -416,7 +416,7 @@ public class GerberX2FileReader {
         }
         else if (ch == 'T') {                                       // T
             ATTR attr = new ATTR(cmd.substring(0, 2));
-            String[] ps = cmd.substring(3).split(",");
+            String[] ps = cmd.substring(2).split(",");
             attr.setName(ps[0]);
             for (int i = 1; i < ps.length; i++) {
                 attr.getFields().add(ps[i]);

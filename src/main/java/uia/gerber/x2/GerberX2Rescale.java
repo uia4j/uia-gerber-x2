@@ -34,6 +34,11 @@ public class GerberX2Rescale implements GerberX2FileReaderListener {
         this.cg = this.writer.getGraphics();
     }
 
+    public void build(String origFile) throws IOException {
+        GerberX2FileReader r = new GerberX2FileReader(this);
+        r.run(origFile);
+    }
+
     public GerberX2FileWriter getWriter() {
         return this.writer;
     }

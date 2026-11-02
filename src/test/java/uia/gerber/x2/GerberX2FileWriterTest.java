@@ -1,12 +1,15 @@
 package uia.gerber.x2;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 
 import org.junit.Test;
 
+import uia.gerber.x2.GerberX2FileReader.FormatMode;
 import uia.gerber.x2.builder.CommonGraphics;
 import uia.gerber.x2.model.LM.MirrorType;
 
@@ -399,9 +402,18 @@ public class GerberX2FileWriterTest {
     }
 
     @Test
-    public void testScale() throws IOException {
-        GerberX2FileReader r = new GerberX2FileReader(new GerberX2Rescale("samples/gerberScaled.gbr", 4, 4));
-        r.run("samples/gerber2.gbr");
-        // r.run("D:\\workspace\\htks\\air\\01.req\\PLP\\2025-03-03\\1-2-3-4-5-6\\P0AC64PQ0001-Q2-GOLDEN MAP.gbr");
+    public void testOpen() throws Exception {
+        FormatMode fm = new GerberX2FileReader().findFormatMode("samples/gerber1.gbr");
+        FileInputStream fis = new FileInputStream("samples/gerber1.gbr");
+        FileOutputStream fos = new FileOutputStream("samples/gerber1_append.gbr");
+        GerberX2FileWriter writer = GerberX2FileWriter.open(
+                fis,
+                fos,
+                fm.format.intDigi(),
+                fm.format.decDigi(),
+                fm.mode.getUnit(),
+                Charset.defaultCharset());
+        writer.getGraphics().comment("append new line");
+        writer.close();
     }
 }
